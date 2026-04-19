@@ -3,7 +3,6 @@
   "description": "Filament v5 Ethiopic Calendar Date Picker with Gregorian conversion support.",
   "type": "library",
   "license": "MIT",
-
   "keywords": [
     "laravel",
     "filament",
@@ -13,18 +12,26 @@
     "datepicker",
     "livewire"
   ],
-
   "require": {
     "php": "^8.2",
     "filament/filament": "^5.0"
   },
-
+  "require-dev": {
+    "phpunit/phpunit": "^11.0"
+  },
   "autoload": {
     "psr-4": {
       "Mammesat\\FilamentEthiopicDatePicker\\": "src/"
     }
   },
-
+  "autoload-dev": {
+    "psr-4": {
+      "Mammesat\\FilamentEthiopicDatePicker\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
   "extra": {
     "laravel": {
       "providers": [
@@ -32,7 +39,6 @@
       ]
     }
   },
-
   "minimum-stability": "stable",
   "prefer-stable": true
 }
