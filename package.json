@@ -1,0 +1,15 @@
+{
+  "name": "filament-ethiopic-date-picker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node bin/build.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  },
+  "dependencies": {
+    "@calidy/dayjs-calendarsystems": "latest",
+    "dayjs": "^1.11.10"
+  }
+}

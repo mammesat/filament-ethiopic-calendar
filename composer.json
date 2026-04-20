@@ -1,0 +1,61 @@
+{
+    "name": "mammesat/filament-ethiopic-date-picker",
+    "description": "Filament v5 Ethiopic Calendar Date Picker with Gregorian conversion support.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "filament",
+        "filamentphp",
+        "ethiopia",
+        "ethiopic-calendar",
+        "datepicker",
+        "livewire"
+    ],
+    "require": {
+        "php": "^8.2",
+        "filament/filament": "^5.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0",
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mammesat\\FilamentEthiopicDatePicker\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mammesat\\FilamentEthiopicDatePicker\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ],
+        "workbench:migrate": "@php vendor/bin/testbench migrate --seed",
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "build": "@php vendor/bin/testbench workbench:build --ansi"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mammesat\\FilamentEthiopicDatePicker\\EthiopicDatePickerServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

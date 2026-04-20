@@ -1,0 +1,24 @@
+providers:
+  - Workbench\App\Providers\AdminPanelProvider
+
+migrations:
+  - workbench/database/migrations
+
+seeders:
+  - Workbench\Database\Seeders\DatabaseSeeder
+
+workbench:
+  start: /admin
+  install: true
+  discovers:
+    web: true
+  build: []
+  assets: []
+  sync: []
+
+env:
+  - DB_CONNECTION=sqlite
+  - DB_DATABASE="C:/Users/Mamme/Desktop/Projects/filament-ethiopic-date-picker/workbench/database/database.sqlite"
+  - CACHE_STORE=file
+  - SESSION_DRIVER=file
+
