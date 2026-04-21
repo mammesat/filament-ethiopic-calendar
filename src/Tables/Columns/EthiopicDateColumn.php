@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Mammesat\FilamentEthiopicDatePicker\Tables\Columns;
+namespace Mammesat\FilamentEthiopicCalendar\Tables\Columns;
 
-use Carbon\Carbon;
 use Filament\Tables\Columns\TextColumn;
-use Mammesat\FilamentEthiopicDatePicker\Concerns\HasEthiopicDisplayMode;
-use Mammesat\FilamentEthiopicDatePicker\Services\EthiopicCalendar;
+use Mammesat\FilamentEthiopicCalendar\Concerns\HasEthiopicFormatting;
 
 class EthiopicDateColumn extends TextColumn
 {
-    use HasEthiopicDisplayMode;
+    use HasEthiopicFormatting;
 
     protected function setUp(): void
     {
@@ -20,44 +18,7 @@ class EthiopicDateColumn extends TextColumn
         $this->icon('heroicon-m-calendar');
 
         $this->formatStateUsing(function (mixed $state): ?string {
-            if ($state === null) {
-                return null;
-            }
-
-            try {
-                $parsedDate = Carbon::parse($state)->format('Y-m-d');
-            } catch (\Throwable) {
-                return null;
-            }
-
-            $calendar = app(EthiopicCalendar::class);
-
-            $formattedDate = $calendar->formatDisplayLabel(
-                $parsedDate,
-                $this->getDisplayMode(),
-            );
-
-            if ($formattedDate === null) {
-                return null;
-            }
-
-            if (! config('ethiopic-calendar.with_time', false) || config('ethiopic-calendar.time_format', 'standard') !== 'ethiopian') {
-                return $formattedDate;
-            }
-
-            try {
-                $time = Carbon::parse($state)->format('H:i');
-            } catch (\Throwable) {
-                return $formattedDate;
-            }
-
-            $formattedTime = $calendar->formatEthiopianTime($time);
-
-            if ($formattedTime === null) {
-                return $formattedDate;
-            }
-
-            return $formattedDate . ' ' . $formattedTime;
+            return $this->formatEthiopicState($state);
         });
     }
 }

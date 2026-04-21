@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Mammesat\FilamentEthiopicDatePicker\Concerns;
+namespace Mammesat\FilamentEthiopicCalendar\Concerns;
 
-use Mammesat\FilamentEthiopicDatePicker\Enums\DisplayMode;
+use Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode;
 
 trait HasEthiopicDisplayMode
 {
@@ -13,7 +13,7 @@ trait HasEthiopicDisplayMode
     public function displayMode(DisplayMode|string|null $mode): static
     {
         if (is_string($mode)) {
-            $mode = DisplayMode::tryFrom($mode);
+            $mode = DisplayMode::fromSimpleMode($mode);
         }
 
         $this->displayMode = $mode;

@@ -1,6 +1,6 @@
 @php
     use Filament\Support\Facades\FilamentView;
-    use Mammesat\FilamentEthiopicDatePicker\Enums\DisplayMode;
+    use Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode;
 
     $datalistOptions = $getDatalistOptions();
     $extraAlpineAttributes = $getExtraAlpineAttributes();
@@ -18,7 +18,7 @@
     $suffixIcon = $getSuffixIcon();
     $suffixLabel = $getSuffixLabel();
     $statePath = $getStatePath();
-    $calendarService = app(\Mammesat\FilamentEthiopicDatePicker\Services\EthiopicCalendar::class);
+    $calendarService = app(\Mammesat\FilamentEthiopicCalendar\Services\EthiopicCalendar::class);
 
     // Calendar UI locale determines month/day names in the popup
     $calendarLocale = $getCalendarLocale();
@@ -78,7 +78,7 @@
                 @else
                     x-load
                 @endif
-                x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('filament-ethiopic-date-picker', 'mammesat/filament-ethiopic-date-picker') }}"
+                x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('filament-ethiopic-calendar', 'mammesat/filament-ethiopic-calendar') }}"
                 x-data="filamentEthiopicCalendarComponent({
                             displayFormat:
                                 '{{ convert_date_format($getDisplayFormat())->to('day.js') }}',

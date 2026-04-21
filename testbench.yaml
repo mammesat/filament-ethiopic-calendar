@@ -18,7 +18,7 @@ workbench:
 
 env:
   - DB_CONNECTION=sqlite
-  - DB_DATABASE="C:/Users/Mamme/Desktop/Projects/filament-ethiopic-date-picker/workbench/database/database.sqlite"
+  - DB_DATABASE="C:/Users/Mamme/Desktop/Projects/filament-ethiopic-calendar/workbench/database/database.sqlite"
   - CACHE_STORE=file
   - SESSION_DRIVER=file
 

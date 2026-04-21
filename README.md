@@ -1,8 +1,12 @@
-# Filament Ethiopic Date Picker
+# Filament Ethiopic Calendar & Time Engine
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/mammesat/filament-ethiopic-date-picker.svg?style=flat-square)](https://packagist.org/packages/mammesat/filament-ethiopic-date-picker)
-[![Total Downloads](https://img.shields.io/packagist/dt/mammesat/filament-ethiopic-date-picker.svg?style=flat-square)](https://packagist.org/packages/mammesat/filament-ethiopic-date-picker)
-[![Tests](https://img.shields.io/github/actions/workflow/status/mammesat/filament-ethiopic-date-picker/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/mammesat/filament-ethiopic-date-picker/actions?query=workflow%3ATests+branch%3Amain)
+*A full Ethiopian calendar and time system for Filament PHP, supporting dual calendar display, Ethiopian time, and flexible formatting.*
+
+**This package is not just a date picker — it is a complete Ethiopian Calendar & Time Engine for Filament.**
+
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/mammesat/filament-ethiopic-calendar.svg?style=flat-square)](https://packagist.org/packages/mammesat/filament-ethiopic-calendar)
+[![Total Downloads](https://img.shields.io/packagist/dt/mammesat/filament-ethiopic-calendar.svg?style=flat-square)](https://packagist.org/packages/mammesat/filament-ethiopic-calendar)
+[![Tests](https://img.shields.io/github/actions/workflow/status/mammesat/filament-ethiopic-calendar/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/mammesat/filament-ethiopic-calendar/actions?query=workflow%3ATests+branch%3Amain)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
 A seamless, professional Ethiopic (Ge'ez) calendar integration for **Filament v5**. This plugin allows users to interact with the 13-month Ethiopian calendar through a beautiful, native-looking UI while maintaining standard Gregorian storage in your database.
@@ -40,7 +44,7 @@ Perfect for government systems, local Ethiopian businesses, and bilingual applic
 Install the package via composer:
 
 ```bash
-composer require mammesat/filament-ethiopic-date-picker
+composer require mammesat/filament-ethiopic-calendar
 ```
 
 ### Publish Configuration (Optional)
@@ -48,7 +52,7 @@ composer require mammesat/filament-ethiopic-date-picker
 Publish the config file to globally customize default display modes, locales, and time picker settings:
 
 ```bash
-php artisan vendor:publish --tag="filament-ethiopic-date-picker-config"
+php artisan vendor:publish --tag="filament-ethiopic-calendar-config"
 ```
 
 If you are upgrading or modifying configuration, it is recommended to clear your caches:
@@ -66,20 +70,21 @@ php artisan optimize:clear
 Add the `EthiopicDatePicker` to your form schema. It extends Filament's native `DateTimePicker` and inherits most of its powerful features.
 
 ```php
-use Mammesat\FilamentEthiopicDatePicker\Forms\Components\EthiopicDatePicker;
+use Mammesat\FilamentEthiopicCalendar\Fields\EthiopicDateTimePicker;
 
-EthiopicDatePicker::make('birth_date')
+EthiopicDateTimePicker::make('birth_date')
     ->label('Date of Birth')
     ->required()
     // Optional methods to customize behavior per-field:
-    ->calendarLocale('en') // Force English transliteration UI
-    ->withTime(false)      // Disable the time picker
+    ->displayMode('ethiopic') // 'ethiopic' | 'gregorian' | 'dual' or a raw DisplayMode Enum
+    ->timeMode('ethiopian')   // 'gregorian' | 'ethiopian' | 'dual'
+    ->calendarLocale('am')    // 'am' for Amharic or 'en' for English
+    ->withTime(true)          // Enable or disable the time picker
     ->showEthiopicHelper(true) // Show the Ethiopic date as helper text below input
     ->showEthiopicSuffix(false); // Show the Ethiopic date as an input suffix
 
-// Ethiopian time display is applied automatically when:
-// config('ethiopic-calendar.with_time') === true
-// and config('ethiopic-calendar.time_format') === 'ethiopian'
+// You can strictly enforce Ethiopic full-defaults dynamically using:
+// ->ethiopic() 
 ```
 
 ### 📊 In Filament Tables
@@ -87,8 +92,8 @@ EthiopicDatePicker::make('birth_date')
 Display dates perfectly formatted in the Ethiopian calendar within your resource tables:
 
 ```php
-use Mammesat\FilamentEthiopicDatePicker\Tables\Columns\EthiopicDateColumn;
-use Mammesat\FilamentEthiopicDatePicker\Enums\DisplayMode;
+use Mammesat\FilamentEthiopicCalendar\Tables\Columns\EthiopicDateColumn;
+use Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode;
 
 EthiopicDateColumn::make('created_at')
     ->label('Created (Ethiopic)')
@@ -101,7 +106,7 @@ EthiopicDateColumn::make('created_at')
 Use the `EthiopicDateEntry` for elegant, read-only date displays on view pages:
 
 ```php
-use Mammesat\FilamentEthiopicDatePicker\Infolists\Components\EthiopicDateEntry;
+use Mammesat\FilamentEthiopicCalendar\Infolists\Components\EthiopicDateEntry;
 
 EthiopicDateEntry::make('registered_at')
     ->label('Registration Date');
@@ -116,10 +121,8 @@ You can define global defaults in `config/ethiopic-calendar.php`:
 ```php
 return [
     // How Ethiopic strings are visibly formatted
-    'display_mode' => 'amharic_no_week',
-
-    // Fallback locale if display_mode is dynamic
-    'locale' => 'am',
+    // Easy string aliases: 'ethiopic' | 'gregorian' | 'dual'
+    'display_mode' => 'ethiopic',
 
     // Controls the language of month and day names in the calendar popup UI
     // 'am' (Amharic) or 'en' (English Transliteration)
@@ -129,15 +132,16 @@ return [
     'with_time' => false,
 
     // Time display format:
-    // - 'standard'  => regular Gregorian HH:mm
-    // - 'ethiopian' => local Ethiopian clock time with period labels
-    'time_format' => 'standard',
+    // - 'gregorian' => standard HH:mm AM/PM
+    // - 'ethiopian' => local Ethiopian clock time (automatically shifts 6 hours)
+    // - 'dual'      => displays both Gregorian and Ethiopian time
+    'time_mode' => 'gregorian',
 ];
 ```
 
 ### Ethiopian Time Format Rules
 
-When `with_time = true` and `time_format = 'ethiopian'`, the package renders time using the local Ethiopian clock system:
+When `with_time = true` and `time_mode = 'ethiopian' or 'dual'`, the package renders time using the 12-hour local Ethiopian clock system natively:
 
 - **Hour conversion**: `ethiopianHour = (gregorianHour + 6) % 12`, and `0` becomes `12`
 - **Minutes**: preserved and always shown as 2 digits
@@ -156,17 +160,17 @@ Examples:
 
 ### Available Display Modes
 
-You can set these globally in the config or override them per-component using `->displayMode()`.
+You can set these globally in the config or override them per-component using `->displayMode()`. You can pass these as strict `DisplayMode` Enums or use the Simple String APIs (`'ethiopic'`, `'gregorian'`, `'dual'`).
 
 | Enum Value                  | Description                          | Example Output                              |
 | --------------------------- | ------------------------------------ | ------------------------------------------- |
+| `AmharicNoWeek` (`ethiopic`)| Default Amharic, no weekday          | መስከረም 01, 2017                         |
+| `CleanGregorian` (`gregorian`)| Pure Gregorian format              | Apr 21, 2026                                |
+| `Hybrid` (`dual`)           | Bilingual (Amharic + English)        | Apr 21, 2026 (መስከረም 01, 2017)           |
 | `AmharicCombined`         | Fully localized Amharic with weekday | መስከረም 01, 2017 / ሰኞ                  |
 | `TransliterationCombined` | English transliteration with weekday | Meskerem 01, 2017 / MON                     |
-| `Hybrid`                  | Bilingual (Amharic + English)        | Meskerem (መስከረም) 01, 2017 / MON (ሰኞ) |
 | `CompactAmharic`          | Compact spacing Amharic              | መስከረም 01, 2017 ሰኞ                    |
-| `AmharicNoWeek`           | Amharic, no weekday                  | መስከረም 01, 2017                         |
 | `TransliterationNoWeek`   | English transliteration, no weekday  | Meskerem 01, 2017                           |
-| `CleanGregorian`          | Pure Gregorian format (fallback)     | 2024-09-11                                  |
 
 ---
 

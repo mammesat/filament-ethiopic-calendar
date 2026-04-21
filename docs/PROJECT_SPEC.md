@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-**Project Name:** `filament-ethiopic-date-picker`
+**Project Name:** `filament-ethiopic-calendar`
 
 The objective of this project is to provide a robust, Composer-installable Laravel package that extends the Filament v5 ecosystem by introducing a native Ethiopic (Ge'ez) Calendar Date Picker and associated table column components. 
 

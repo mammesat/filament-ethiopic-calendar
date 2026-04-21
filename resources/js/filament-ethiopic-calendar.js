@@ -77,6 +77,17 @@ class EthiopicCalendarSystem extends CalendarSystemBase {
   monthNames(locale="en", cal="ethiopic", first="Meskerem") {
     return generateMonthNames(locale, cal, first);
   }
+  localeOverride(locale) {
+    let base = super.localeOverride(locale);
+    // The Intl API only generates 12 month names; the 13th Ethiopian
+    // month (Pagume) must be added manually for dayjs format() to work.
+    const pagume = (locale === 'am' || locale === 'ti') ? 'ጳጉሜ' : 'Pagume';
+    if (base.months.length === 12) {
+      base.months = [...base.months, pagume];
+      base.monthsShort = [...base.monthsShort, pagume.substring(0, 3)];
+    }
+    return base;
+  }
 }
 
 dayjs.registerCalendarSystem("ethiopic", new EthiopicCalendarSystem());

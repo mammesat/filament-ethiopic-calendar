@@ -5,20 +5,17 @@ declare(strict_types=1);
 namespace Mammesat\FilamentEthiopicCalendar\Tests\Unit;
 
 use InvalidArgumentException;
+use Mammesat\FilamentEthiopicCalendar\Contracts\CalendarAdapterInterface;
 use Mammesat\FilamentEthiopicCalendar\Services\EthiopicCalendarService;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Backward-compatible test class.
+ * Tests for the pure date conversion service.
  *
- * All conversion tests now target EthiopicCalendarService directly.
- * Display formatting tests are moved to EthiopicFormatterTest.
- *
- * @see EthiopicCalendarServiceTest for the full test suite
- * @see EthiopicFormatterTest for display formatting tests
- * @see EthiopicTimeServiceTest for time conversion tests
+ * These are the same conversion tests from the original EthiopicCalendarTest,
+ * now targeting the extracted EthiopicCalendarService.
  */
-final class EthiopicCalendarTest extends TestCase
+final class EthiopicCalendarServiceTest extends TestCase
 {
     private EthiopicCalendarService $calendar;
 
@@ -27,6 +24,11 @@ final class EthiopicCalendarTest extends TestCase
         parent::setUp();
 
         $this->calendar = new EthiopicCalendarService();
+    }
+
+    public function test_it_implements_calendar_adapter_interface(): void
+    {
+        self::assertInstanceOf(CalendarAdapterInterface::class, $this->calendar);
     }
 
     public function test_it_converts_gregorian_to_ethiopic(): void
@@ -65,6 +67,13 @@ final class EthiopicCalendarTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         $this->calendar->daysInEthiopicMonth(2017, 14);
+    }
+
+    public function test_days_in_ethiopic_month_month_zero_throws(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->calendar->daysInEthiopicMonth(2017, 0);
     }
 
     public function test_invalid_gregorian_date_throws_exception(): void
@@ -162,12 +171,5 @@ final class EthiopicCalendarTest extends TestCase
         $ethiopic3 = $this->calendar->toEthiopicString('2000-02-29');
         self::assertNotNull($ethiopic3);
         self::assertSame('2000-02-29', $this->calendar->toGregorianString($ethiopic3));
-    }
-
-    public function test_days_in_ethiopic_month_month_zero_throws(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        $this->calendar->daysInEthiopicMonth(2017, 0);
     }
 }

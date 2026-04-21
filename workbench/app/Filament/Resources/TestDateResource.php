@@ -8,10 +8,12 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Mammesat\FilamentEthiopicDatePicker\Forms\Components\EthiopicDatePicker;
-use Mammesat\FilamentEthiopicDatePicker\Tables\Columns\EthiopicDateColumn;
+use Mammesat\FilamentEthiopicCalendar\Fields\EthiopicDateTimePicker;
+use Mammesat\FilamentEthiopicCalendar\Tables\Columns\EthiopicDateColumn;
 use Workbench\App\Filament\Resources\TestDateResource\Pages;
 use Workbench\App\Models\TestDate;
+use Workbench\App\Models\TestSetting;
+use Mammesat\FilamentEthiopicCalendar\Services\EthiopicFormatter;
 
 class TestDateResource extends Resource
 {
@@ -27,16 +29,29 @@ class TestDateResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
+        $settings = TestSetting::current();
+
         return $schema
             ->components([
-                EthiopicDatePicker::make('birth_date')
+                EthiopicDateTimePicker::make('birth_date')
                     ->label('Birth Date')
-                    ->required(),
+                    ->displayMode($settings->display_mode)
+                    ->timeMode($settings->time_mode)
+                    ->calendarLocale($settings->calendar_locale)
+                    ->withTime($settings->with_time)
+                    ->required()
+                    ->live()
+                    ->helperText(fn ($state) => $state 
+                        ? app(EthiopicFormatter::class)->formatDateTime($state, $settings->display_mode, $settings->time_mode)
+                        : null
+                    ),
             ]);
     }
 
     public static function table(Table $table): Table
     {
+        $settings = TestSetting::current();
+
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id')
@@ -44,10 +59,17 @@ class TestDateResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('birth_date')
                     ->label('Birth Date (Gregorian)')
-                    ->date()
+                    ->formatStateUsing(fn ($state) => $settings->with_time 
+                        ? \Carbon\Carbon::parse($state)->format('M j, Y g:i A') 
+                        : \Carbon\Carbon::parse($state)->format('M j, Y')
+                    )
                     ->sortable(),
-                EthiopicDateColumn::make('birth_date')
+                EthiopicDateColumn::make('birth_date_ethiopic')
+                    ->getStateUsing(fn ($record) => $record->birth_date)
                     ->label('Birth Date (Ethiopian)')
+                    ->displayMode($settings->display_mode)
+                    ->timeMode($settings->time_mode)
+                    ->withTime($settings->with_time)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')

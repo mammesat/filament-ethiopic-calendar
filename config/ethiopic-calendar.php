@@ -8,13 +8,13 @@ return [
     | Display Mode
     |--------------------------------------------------------------------------
     |
-    | This configures how Ethiopic calendar values are displayed across the UX.
+    | Controls how Ethiopic calendar values are displayed across the UX.
     |
     | Supported modes:
     | - 'amharic_no_week': መስከረም 01, 2017 (Amharic, no weekday — default)
     | - 'transliteration_no_week': Meskerem 01, 2017 (English transliteration, no weekday)
     | - 'amharic_combined': መስከረም 01, 2017 / ሰኞ (Fully localized Amharic with weekday)
-    | - 'transliteration_combined': Meskerem 01, 2017 / Monday (English transliteration with weekday)
+    | - 'transliteration_combined': Meskerem 01, 2017 / Monday (English with weekday)
     | - 'clean_gregorian': 2024-09-11 (No Ethiopic labels, pure Gregorian format)
     | - 'hybrid': Meskerem (መስከረም) 01, 2017 / Monday (ሰኞ) (Bilingual display)
     | - 'compact_amharic': መስከረም 01, 2017 ሰኞ (Amharic only, compact spacing)
@@ -62,15 +62,57 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Time Display Format
+    | Time Mode
     |--------------------------------------------------------------------------
     |
-    | Controls how time is rendered when time support is enabled.
+    | Controls which time system the application operates in.
     |
     | Supported:
-    | - 'standard': Regular Gregorian time (HH:mm)
-    | - 'ethiopian': Local Ethiopian clock (day starts at 06:00 Gregorian)
+    | - 'gregorian':  Standard AM/PM — no Ethiopian transformation (default)
+    | - 'ethiopian':  Ethiopian hour system (1–12 starting at 6:00 Gregorian)
+    |                 with day periods (ጠዋት, ከሰዓት, ማታ, ለሊት)
+    | - 'dual':       Both Gregorian and Ethiopian displayed together
+    |                 e.g. "10:00 AM (ጠዋት 4:00)"
     |
     */
-    'time_format' => 'standard',
+    'time_mode' => 'gregorian',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dual Time Display Format
+    |--------------------------------------------------------------------------
+    |
+    | Template for dual time mode display.
+    | Available placeholders: :gregorian, :ethiopian
+    |
+    | Examples:
+    |   ':gregorian (:ethiopian)'   → "10:00 AM (ጠዋት 4:00)"
+    |   ':ethiopian (:gregorian)'   → "ጠዋት 4:00 (10:00 AM)"
+    |
+    */
+    'dual_time_format' => ':gregorian (:ethiopian)',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Time Display Format (DEPRECATED)
+    |--------------------------------------------------------------------------
+    |
+    | Legacy key — use 'time_mode' instead.
+    | Kept for backward compatibility. If 'time_mode' is set, this is ignored.
+    |
+    | - 'standard':  Maps to time_mode 'gregorian'
+    | - 'ethiopian': Maps to time_mode 'ethiopian'
+    |
+    */
+    // 'time_format' => 'standard',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Timezone
+    |--------------------------------------------------------------------------
+    |
+    | Default timezone for Ethiopian date/time operations.
+    |
+    */
+    'timezone' => 'Africa/Addis_Ababa',
 ];

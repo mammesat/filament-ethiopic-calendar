@@ -17,7 +17,7 @@ class TestDate extends Model
     protected function casts(): array
     {
         return [
-            'birth_date' => 'date',
+            'birth_date' => 'datetime',
         ];
     }
 }

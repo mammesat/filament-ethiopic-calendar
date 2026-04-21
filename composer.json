@@ -1,5 +1,5 @@
 {
-    "name": "mammesat/filament-ethiopic-date-picker",
+    "name": "mammesat/filament-ethiopic-calendar",
     "description": "Filament v5 Ethiopic Calendar Date Picker with Gregorian conversion support.",
     "type": "library",
     "license": "MIT",
@@ -22,12 +22,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Mammesat\\FilamentEthiopicDatePicker\\": "src/"
+            "Mammesat\\FilamentEthiopicCalendar\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Mammesat\\FilamentEthiopicDatePicker\\Tests\\": "tests/",
+            "Mammesat\\FilamentEthiopicCalendar\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/",
             "Workbench\\Database\\Seeders\\": "workbench/database/seeders/",
             "Workbench\\Database\\Factories\\": "workbench/database/factories/"
@@ -52,7 +52,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Mammesat\\FilamentEthiopicDatePicker\\EthiopicDatePickerServiceProvider"
+                "Mammesat\\FilamentEthiopicCalendar\\EthiopicCalendarServiceProvider"
             ]
         }
     },
