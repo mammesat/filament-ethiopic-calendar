@@ -74,6 +74,9 @@ class EthiopicCalendarSystem extends CalendarSystemBase {
       if (year === null) year = this.$y;
       return (year + 1) % 4 === 0;
   }
+  monthNames(locale="en", cal="ethiopic", first="Meskerem") {
+    return generateMonthNames(locale, cal, first);
+  }
 }
 
 dayjs.registerCalendarSystem("ethiopic", new EthiopicCalendarSystem());
@@ -95,6 +98,18 @@ export default function filamentEthiopicCalendarComponent({
     daysInFocusedMonth: [],
     displayText: "",
     emptyDaysInFocusedMonth: [],
+    buildEthiopicDate: function (year, month, day) {
+      // Construct an Ethiopic date by going through Gregorian directly,
+      // bypassing the calendarSystems plugin's .month()/.year()/.date()
+      // setters which can overflow for Pagume (5-6 day month).
+      let greg = toGregorian([year, month + 1, day]);
+      console.log('[buildEthiopicDate] ET('+year+','+month+','+day+') → Greg('+greg[0]+','+greg[1]+','+greg[2]+')');
+      let result = dayjs(new Date(greg[0], greg[1] - 1, greg[2]))
+          .tz(l, true)
+          .toCalendarSystem("ethiopic");
+      console.log('[buildEthiopicDate] Result: Y='+result.year()+' M='+result.month()+' D='+result.date());
+      return result;
+    },
     focusedDate: null,
     focusedMonth: null,
     focusedYear: null,
@@ -130,7 +145,7 @@ export default function filamentEthiopicCalendarComponent({
           let currentDay = this.focusedDate.date();
           let clampedDay = Math.min(currentDay, maxDays);
           
-          this.focusedDate = this.focusedDate.date(clampedDay).month(this.focusedMonth);
+          this.focusedDate = this.buildEthiopicDate(targetYear, this.focusedMonth, clampedDay);
         }
       });
       
@@ -141,18 +156,21 @@ export default function filamentEthiopicCalendarComponent({
         Number.isInteger(r) || (r = dayjs().tz(l).toCalendarSystem("ethiopic").year(), this.focusedYear = r);
         if (this.focusedDate.year() !== r) {
             // Clamp day on year change in case transitioning out of a leap year Pagume 6
-            let maxDays = this.focusedMonth === 12 ? ((r + 1) % 4 === 0 ? 6 : 5) : 30;
+            let maxDays = +this.focusedMonth === 12 ? ((r + 1) % 4 === 0 ? 6 : 5) : 30;
             let currentDay = this.focusedDate.date();
             let clampedDay = Math.min(currentDay, maxDays);
             
-            this.focusedDate = this.focusedDate.date(clampedDay).year(r);
+            this.focusedDate = this.buildEthiopicDate(r, this.focusedDate.month(), clampedDay);
         }
       });
       
       this.$watch("focusedDate", () => {
         let r = this.focusedDate.month(), s = this.focusedDate.year();
-        this.focusedMonth !== r && (this.focusedMonth = r);
-        this.focusedYear !== s && (this.focusedYear = s);
+        // Use numeric coercion (+) to prevent type-mismatch cascade:
+        // focusedMonth/focusedYear may be strings from HTML inputs,
+        // while .month()/.year() return numbers.
+        +this.focusedMonth !== r && (this.focusedMonth = r);
+        +this.focusedYear !== s && (this.focusedYear = s);
         this.setupDaysGrid();
       });
       
@@ -271,7 +289,28 @@ export default function filamentEthiopicCalendarComponent({
     },
     setupDaysGrid: function () {
       this.focusedDate ?? (this.focusedDate = dayjs().tz(l).toCalendarSystem("ethiopic"));
-      this.emptyDaysInFocusedMonth = Array.from({ length: this.focusedDate.date(7 - t).day() }, (o, r) => r + 1);
+      
+      // Calculate empty leading days using proper modulo arithmetic.
+      // Use deterministic Zeller's congruence to completely bypass timezone shift bugs
+      // in dayjs().day() when cross-referencing Gregorian and Ethiopian dates.
+      let greg = toGregorian([this.focusedDate.year(), this.focusedDate.month() + 1, 1]);
+      let gy = greg[0];
+      let gm = greg[1]; // toGregorian returns 1-indexed month
+      let gd = greg[2];
+      
+      let q = gd;
+      let m = gm < 3 ? gm + 12 : gm;
+      let Y = gm < 3 ? gy - 1 : gy;
+      let K = Y % 100;
+      let J = Math.floor(Y / 100);
+      let h = (q + Math.floor((13 * (m + 1)) / 5) + K + Math.floor(K / 4) + Math.floor(J / 4) - 2 * J) % 7;
+      
+      let firstDay = (h + 6) % 7; // Zeller format to JS format: 0-6 (Sun-Sat)
+      
+      // t is firstDayOfWeek (0 for Sun, 1 for Mon).
+      let emptyDays = (firstDay - t + 7) % 7;
+      
+      this.emptyDaysInFocusedMonth = Array.from({ length: emptyDays }, (o, r) => r + 1);
       this.daysInFocusedMonth = Array.from({ length: this.focusedDate.daysInMonth() }, (o, r) => r + 1);
     },
     setFocusedDay: function (o) {

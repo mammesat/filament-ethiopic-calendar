@@ -100,7 +100,7 @@ class EthiopicDatePicker extends DateTimePicker
      */
     public function calendarLocale(string $locale): static
     {
-        $this->calendarLocaleOverride = $locale;
+        $this->calendarLocaleOverride = in_array($locale, ['am', 'en'], true) ? $locale : 'am';
 
         return $this;
     }

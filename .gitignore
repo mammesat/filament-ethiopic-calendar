@@ -30,3 +30,4 @@ workbench.sqlite*
 workbench/database/database.sqlite
 test_*.php
 test_*.js
+package-lock.json

@@ -30,7 +30,7 @@
         ->map(fn ($i) => $calendarService->getDisplayMonthName($i, $calendarUiMode))
         ->toArray();
 
-    $dayLabels = collect(range(1, 7))
+    $dayLabels = collect(range(0, 6))
         ->mapWithKeys(fn ($i) => [
             $i => $calendarLocale === 'en'
                 ? strtoupper(substr((string) $calendarService->getDisplayDayName($i, $calendarUiMode), 0, 3))
@@ -43,7 +43,7 @@
         ? DisplayMode::TransliterationCombined
         : DisplayMode::CompactAmharic;
 
-    $dayShortLabels = collect(range(1, 7))
+    $dayShortLabels = collect(range(0, 6))
         ->mapWithKeys(fn ($i) => [
             $i => $calendarLocale === 'en'
                 ? strtoupper(substr((string) $calendarService->getDisplayDayName($i, $dayShortMode), 0, 3))
@@ -82,7 +82,7 @@
                 x-data="filamentEthiopicCalendarComponent({
                             displayFormat:
                                 '{{ convert_date_format($getDisplayFormat())->to('day.js') }}',
-                            firstDayOfWeek: {{ ($getFirstDayOfWeek() + 6) % 7 }},
+                            firstDayOfWeek: {{ $getFirstDayOfWeek() }},
                             isAutofocused: @js($isAutofocused()),
                             locale: @js($getLocale()),
                             shouldCloseOnDateSelection: @js($shouldCloseOnDateSelection()),

@@ -24,7 +24,12 @@ class EthiopicDateColumn extends TextColumn
                 return null;
             }
 
-            $parsedDate = Carbon::parse($state)->format('Y-m-d');
+            try {
+                $parsedDate = Carbon::parse($state)->format('Y-m-d');
+            } catch (\Throwable) {
+                return null;
+            }
+
             $calendar = app(EthiopicCalendar::class);
 
             $formattedDate = $calendar->formatDisplayLabel(
@@ -40,7 +45,12 @@ class EthiopicDateColumn extends TextColumn
                 return $formattedDate;
             }
 
-            $time = Carbon::parse($state)->format('H:i');
+            try {
+                $time = Carbon::parse($state)->format('H:i');
+            } catch (\Throwable) {
+                return $formattedDate;
+            }
+
             $formattedTime = $calendar->formatEthiopianTime($time);
 
             if ($formattedTime === null) {

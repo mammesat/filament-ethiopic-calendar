@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mammesat\FilamentEthiopicDatePicker\Services;
 
+use InvalidArgumentException;
 use Mammesat\FilamentEthiopicDatePicker\Enums\DisplayMode;
 
 final class EthiopicCalendar
@@ -100,10 +101,6 @@ final class EthiopicCalendar
         $time = trim($time);
 
         if ($time === '') {
-            return null;
-        }
-
-        if (strtotime($time) === false) {
             return null;
         }
 
