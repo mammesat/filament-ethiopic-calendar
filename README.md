@@ -17,6 +17,7 @@ Perfect for government systems, local Ethiopian businesses, and bilingual applic
 - **Gregorian DB Storage** — Dates are selected in Ethiopic but stored as standard `Y-m-d H:i:s` strings in your database, ensuring full compatibility with Laravel's Eloquent features and standard validation.
 - **13-Month Support** — Full, mathematically accurate support for the Ethiopian calendar, including the 13th month (*Pagume*).
 - **Time Picker Support** — Fully supports selecting hours, minutes, and seconds alongside the date.
+- **Ethiopian Local Time Display** — Optional Ethiopian clock rendering (`time_format: ethiopian`) using local period labels and hour conversion from Gregorian time.
 - **Form Integration** — Powerful `EthiopicDatePicker` component with an interactive popup calendar.
 - **Table Support** — `EthiopicDateColumn` for displaying localized dates beautifully in your resource tables.
 - **Infolist Support** — `EthiopicDateEntry` for clean, read-only date displays on view pages.
@@ -75,6 +76,10 @@ EthiopicDatePicker::make('birth_date')
     ->withTime(false)      // Disable the time picker
     ->showEthiopicHelper(true) // Show the Ethiopic date as helper text below input
     ->showEthiopicSuffix(false); // Show the Ethiopic date as an input suffix
+
+// Ethiopian time display is applied automatically when:
+// config('ethiopic-calendar.with_time') === true
+// and config('ethiopic-calendar.time_format') === 'ethiopian'
 ```
 
 ### 📊 In Filament Tables
@@ -122,8 +127,32 @@ return [
 
     // Enable or disable the time picker globally
     'with_time' => false,
+
+    // Time display format:
+    // - 'standard'  => regular Gregorian HH:mm
+    // - 'ethiopian' => local Ethiopian clock time with period labels
+    'time_format' => 'standard',
 ];
 ```
+
+### Ethiopian Time Format Rules
+
+When `with_time = true` and `time_format = 'ethiopian'`, the package renders time using the local Ethiopian clock system:
+
+- **Hour conversion**: `ethiopianHour = (gregorianHour + 6) % 12`, and `0` becomes `12`
+- **Minutes**: preserved and always shown as 2 digits
+- **Periods**:
+  - `06:00–11:59` → `ጥዋት`
+  - `12:00–17:59` → `ከሰዓት`
+  - `18:00–23:59` → `ማታ`
+  - `00:00–05:59` → `ለሊት`
+
+Examples:
+
+- `06:30` → `ጥዋት 12:30`
+- `12:45` → `ከሰዓት 6:45`
+- `19:00` → `ማታ 1:00`
+- `02:30` → `ለሊት 8:30`
 
 ### Available Display Modes
 

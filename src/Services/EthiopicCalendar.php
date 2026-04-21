@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Mammesat\FilamentEthiopicDatePicker\Services;
 
-use InvalidArgumentException;
 use Mammesat\FilamentEthiopicDatePicker\Enums\DisplayMode;
 
 final class EthiopicCalendar
@@ -90,6 +89,49 @@ final class EthiopicCalendar
             DisplayMode::AmharicNoWeek, DisplayMode::TransliterationNoWeek => "{$monthName} {$day}, {$year}",
             DisplayMode::CleanGregorian => $gregorian,
         };
+    }
+
+    public function formatEthiopianTime(?string $time): ?string
+    {
+        if ($time === null) {
+            return null;
+        }
+
+        $time = trim($time);
+
+        if ($time === '') {
+            return null;
+        }
+
+        if (strtotime($time) === false) {
+            return null;
+        }
+
+        if (! preg_match('/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/', $time, $matches)) {
+            return null;
+        }
+
+        $gregorianHour = (int) $matches[1];
+        $minute = (int) $matches[2];
+
+        if ($gregorianHour < 0 || $gregorianHour > 23 || $minute < 0 || $minute > 59) {
+            return null;
+        }
+
+        $ethiopianHour = ($gregorianHour + 6) % 12;
+
+        if ($ethiopianHour === 0) {
+            $ethiopianHour = 12;
+        }
+
+        $period = match (true) {
+            $gregorianHour >= 6 && $gregorianHour <= 11 => 'ጥዋት',
+            $gregorianHour >= 12 && $gregorianHour <= 17 => 'ከሰዓት',
+            $gregorianHour >= 18 && $gregorianHour <= 23 => 'ማታ',
+            default => 'ለሊት',
+        };
+
+        return sprintf('%s %d:%s', $period, $ethiopianHour, sprintf('%02d', $minute));
     }
 
     // ──────────────────────────────────────────────

@@ -24,12 +24,30 @@ class EthiopicDateColumn extends TextColumn
                 return null;
             }
 
-            $parsed = Carbon::parse($state)->format('Y-m-d');
+            $parsedDate = Carbon::parse($state)->format('Y-m-d');
+            $calendar = app(EthiopicCalendar::class);
 
-            return app(EthiopicCalendar::class)->formatDisplayLabel(
-                $parsed,
+            $formattedDate = $calendar->formatDisplayLabel(
+                $parsedDate,
                 $this->getDisplayMode(),
             );
+
+            if ($formattedDate === null) {
+                return null;
+            }
+
+            if (! config('ethiopic-calendar.with_time', false) || config('ethiopic-calendar.time_format', 'standard') !== 'ethiopian') {
+                return $formattedDate;
+            }
+
+            $time = Carbon::parse($state)->format('H:i');
+            $formattedTime = $calendar->formatEthiopianTime($time);
+
+            if ($formattedTime === null) {
+                return $formattedDate;
+            }
+
+            return $formattedDate . ' ' . $formattedTime;
         });
     }
 }

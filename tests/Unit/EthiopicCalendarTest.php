@@ -254,6 +254,27 @@ final class EthiopicCalendarTest extends TestCase
         $this->calendar->daysInEthiopicMonth(2017, 0);
     }
 
+    public function test_it_formats_ethiopian_time_with_correct_periods_and_hours(): void
+    {
+        self::assertSame('ጥዋት 12:00', $this->calendar->formatEthiopianTime('06:00'));
+        self::assertSame('ጥዋት 1:05', $this->calendar->formatEthiopianTime('07:05'));
+        self::assertSame('ጥዋት 1:15', $this->calendar->formatEthiopianTime('07:15'));
+        self::assertSame('ከሰዓት 6:00', $this->calendar->formatEthiopianTime('12:00'));
+        self::assertSame('ከሰዓት 6:45', $this->calendar->formatEthiopianTime('12:45'));
+        self::assertSame('ማታ 12:00', $this->calendar->formatEthiopianTime('18:00'));
+        self::assertSame('ማታ 1:00', $this->calendar->formatEthiopianTime('19:00'));
+        self::assertSame('ለሊት 6:00', $this->calendar->formatEthiopianTime('00:00'));
+        self::assertSame('ለሊት 8:30', $this->calendar->formatEthiopianTime('02:30'));
+    }
+
+    public function test_it_returns_null_for_invalid_ethiopian_time_inputs(): void
+    {
+        self::assertNull($this->calendar->formatEthiopianTime(null));
+        self::assertNull($this->calendar->formatEthiopianTime(''));
+        self::assertNull($this->calendar->formatEthiopianTime('not-a-time'));
+        self::assertNull($this->calendar->formatEthiopianTime('24:00'));
+    }
+
     // ──────────────────────────────────────────────
     // New tests: No-week display modes
     // ──────────────────────────────────────────────
@@ -308,4 +329,3 @@ final class EthiopicCalendarTest extends TestCase
         self::assertNull($this->calendar->formatDisplayLabel('   ', DisplayMode::AmharicNoWeek));
     }
 }
-

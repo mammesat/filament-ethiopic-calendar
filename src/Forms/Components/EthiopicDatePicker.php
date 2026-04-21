@@ -36,17 +36,7 @@ class EthiopicDatePicker extends DateTimePicker
                 return null;
             }
 
-            if ($state === null || trim((string) $state) === '') {
-                return null;
-            }
-
-            if (preg_match('/^\d{4}-\d{2}-\d{2}/', (string) $state)) {
-                $parsed = explode(' ', (string) $state)[0];
-
-                return app(EthiopicCalendar::class)->formatDisplayLabel($parsed, $component->getDisplayMode());
-            }
-
-            return null;
+            return $component->formatStateForDisplay($state);
         });
 
         $this->suffix(function (EthiopicDatePicker $component, mixed $state): ?string {
@@ -54,17 +44,7 @@ class EthiopicDatePicker extends DateTimePicker
                 return null;
             }
 
-            if ($state === null || trim((string) $state) === '') {
-                return null;
-            }
-
-            if (preg_match('/^\d{4}-\d{2}-\d{2}/', (string) $state)) {
-                $parsed = explode(' ', (string) $state)[0];
-
-                return app(EthiopicCalendar::class)->formatDisplayLabel($parsed, $component->getDisplayMode());
-            }
-
-            return null;
+            return $component->formatStateForDisplay($state);
         });
 
         // formatStateUsing ensures read-only/disabled components display Ethiopic.
@@ -76,8 +56,7 @@ class EthiopicDatePicker extends DateTimePicker
 
             if ($component->isDisabled()) {
                 if (preg_match('/^\d{4}-\d{2}-\d{2}/', (string) $state)) {
-                    $parsed = explode(' ', (string) $state)[0];
-                    $ethiopic = app(EthiopicCalendar::class)->formatDisplayLabel($parsed, $component->getDisplayMode());
+                    $ethiopic = $component->formatStateForDisplay($state);
 
                     return $ethiopic ?? $state;
                 }
@@ -152,5 +131,37 @@ class EthiopicDatePicker extends DateTimePicker
     public function hasTime(): bool
     {
         return $this->withTimeOverride ?? config('ethiopic-calendar.with_time', false);
+    }
+
+    protected function formatStateForDisplay(mixed $state): ?string
+    {
+        if ($state === null || trim((string) $state) === '') {
+            return null;
+        }
+
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}/', (string) $state)) {
+            return null;
+        }
+
+        $calendar = app(EthiopicCalendar::class);
+        [$date, $time] = array_pad(preg_split('/\s+/', trim((string) $state), 2), 2, null);
+
+        $formattedDate = $calendar->formatDisplayLabel($date, $this->getDisplayMode());
+
+        if ($formattedDate === null) {
+            return null;
+        }
+
+        if (! $this->hasTime() || config('ethiopic-calendar.time_format', 'standard') !== 'ethiopian' || $time === null) {
+            return $formattedDate;
+        }
+
+        $formattedTime = $calendar->formatEthiopianTime($time);
+
+        if ($formattedTime === null) {
+            return $formattedDate;
+        }
+
+        return $formattedDate . ' ' . $formattedTime;
     }
 }
