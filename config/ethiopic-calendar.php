@@ -59,4 +59,18 @@ return [
     |
     */
     'with_time' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Time Display Format
+    |--------------------------------------------------------------------------
+    |
+    | Controls how time is rendered when time support is enabled.
+    |
+    | Supported:
+    | - 'standard': Regular Gregorian time (HH:mm)
+    | - 'ethiopian': Local Ethiopian clock (day starts at 06:00 Gregorian)
+    |
+    */
+    'time_format' => 'standard',
 ];
