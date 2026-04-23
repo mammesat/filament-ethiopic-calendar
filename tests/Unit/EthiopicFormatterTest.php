@@ -115,8 +115,10 @@ final class EthiopicFormatterTest extends TestCase
         $result = $this->formatter->formatDate('2023-09-12', DisplayMode::Hybrid);
 
         self::assertNotNull($result);
-        self::assertStringContainsString('Meskerem', $result);
-        self::assertStringContainsString('መስከረም', $result);
+        self::assertStringContainsString('Sep, 12 2023', $result);
+        self::assertStringContainsString('መስከረም 01, 2016', $result);
+        self::assertStringContainsString('(', $result);
+        self::assertStringContainsString(')', $result);
     }
 
     public function test_format_date_compact_amharic(): void
@@ -132,7 +134,7 @@ final class EthiopicFormatterTest extends TestCase
     {
         $result = $this->formatter->formatDate('2023-09-12', DisplayMode::CleanGregorian);
 
-        self::assertSame('2023-09-12', $result);
+        self::assertSame('Sep, 12 2023', $result);
     }
 
     public function test_format_date_null_input(): void
@@ -149,11 +151,11 @@ final class EthiopicFormatterTest extends TestCase
         self::assertSame('መስከረም 01, 2016', $ethiopic);
 
         $gregorian = $this->formatter->formatDate('2023-09-12', 'gregorian');
-        self::assertSame('2023-09-12', $gregorian);
+        self::assertSame('Sep, 12 2023', $gregorian);
 
         $dual = $this->formatter->formatDate('2023-09-12', 'dual');
-        self::assertStringContainsString('Meskerem', $dual);
-        self::assertStringContainsString('መስከረም', $dual);
+        self::assertStringContainsString('Sep, 12 2023', $dual);
+        self::assertStringContainsString('መስከረም 01, 2016', $dual);
     }
 
     // ──────────────────────────────────────────────

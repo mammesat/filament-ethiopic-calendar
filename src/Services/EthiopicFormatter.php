@@ -62,10 +62,17 @@ final class EthiopicFormatter
         $monthName = $this->getFormattedMonthName((int) $month, $mode);
         $dayName = $this->getFormattedDayName($dayOfWeek, $mode);
 
+        try {
+            $gregorianFormatted = Carbon::parse($gregorianDate)->format('M, j Y');
+        } catch (\Throwable) {
+            $gregorianFormatted = $gregorianDate;
+        }
+
         return match ($mode) {
             DisplayMode::AmharicCombined,
-            DisplayMode::TransliterationCombined,
-            DisplayMode::Hybrid => "{$monthName} {$day}, {$year} / {$dayName}",
+            DisplayMode::TransliterationCombined => "{$monthName} {$day}, {$year} / {$dayName}",
+
+            DisplayMode::Hybrid => "{$gregorianFormatted} ({$monthName} {$day}, {$year})",
 
             DisplayMode::CompactAmharic => "{$monthName} {$day}, {$year} {$dayName}",
 
@@ -240,13 +247,6 @@ final class EthiopicFormatter
 
         $name = $this->locale->getMonthName($monthIndex, $locale);
 
-        if ($mode === DisplayMode::Hybrid) {
-            $amharic = $this->locale->getMonthName($monthIndex, 'am');
-            $english = $this->locale->getMonthName($monthIndex, 'en');
-
-            return "{$english} ({$amharic})";
-        }
-
         return $name;
     }
 
@@ -257,13 +257,6 @@ final class EthiopicFormatter
         }
 
         $locale = $this->localeForMode($mode);
-
-        if ($mode === DisplayMode::Hybrid) {
-            $amharic = $this->locale->getDayName($dayIndex, 'long', 'am');
-            $english = $this->locale->getDayName($dayIndex, 'long', 'en');
-
-            return "{$english} ({$amharic})";
-        }
 
         return $this->locale->getDayName($dayIndex, 'long', $locale);
     }
@@ -282,7 +275,7 @@ final class EthiopicFormatter
             DisplayMode::TransliterationNoWeek,
             DisplayMode::CleanGregorian => 'en',
 
-            DisplayMode::Hybrid => 'en', // Primary locale; hybrid builds both internally
+            DisplayMode::Hybrid => EthiopicConfig::calendarLocale(),
         };
     }
 

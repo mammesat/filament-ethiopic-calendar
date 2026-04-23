@@ -1,187 +1,46 @@
-# Filament Ethiopic Calendar & Time Engine
+# 🇪🇹 Filament Ethiopic Calendar & Time Engine
 
-*A full Ethiopian calendar and time system for Filament PHP, supporting dual calendar display, Ethiopian time, and flexible formatting.*
-
-**This package is not just a date picker — it is a complete Ethiopian Calendar & Time Engine for Filament.**
+*A full Ethiopian calendar **and time system** for Filament PHP — not just a date picker.*
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mammesat/filament-ethiopic-calendar.svg?style=flat-square)](https://packagist.org/packages/mammesat/filament-ethiopic-calendar)
 [![Total Downloads](https://img.shields.io/packagist/dt/mammesat/filament-ethiopic-calendar.svg?style=flat-square)](https://packagist.org/packages/mammesat/filament-ethiopic-calendar)
 [![Tests](https://img.shields.io/github/actions/workflow/status/mammesat/filament-ethiopic-calendar/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/mammesat/filament-ethiopic-calendar/actions?query=workflow%3ATests+branch%3Amain)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
-A seamless, professional Ethiopic (Ge'ez) calendar integration for **Filament v5**. This plugin allows users to interact with the 13-month Ethiopian calendar through a beautiful, native-looking UI while maintaining standard Gregorian storage in your database.
+---
+
+## 🚀 Overview
+
+**Filament Ethiopic Calendar & Time Engine** brings full Ethiopian date and time support to your Laravel + Filament applications.
+
+It goes beyond simple date conversion by introducing:
+
+* 📅 **Ethiopian calendar** (Gregorian ↔ Ethiopic)
+* 🕰️ **Ethiopian time system** (6-hour shifted clock)
+* 🔁 **Dual display modes** (Gregorian + Ethiopic)
+* 🌍 **Localization** (Amharic / English)
+* 🧠 **Centralized formatting engine**
 
 Perfect for government systems, local Ethiopian businesses, and bilingual applications that require precise date management natively within the Filament ecosystem.
 
 ---
 
-## ✨ Features
+## ✨ Why This Package?
 
-- **Native Filament Experience** — Blends perfectly with the Filament ecosystem using native styles, Tailwind CSS, and Alpine.js.
-- **Gregorian DB Storage** — Dates are selected in Ethiopic but stored as standard `Y-m-d H:i:s` strings in your database, ensuring full compatibility with Laravel's Eloquent features and standard validation.
-- **13-Month Support** — Full, mathematically accurate support for the Ethiopian calendar, including the 13th month (*Pagume*).
-- **Time Picker Support** — Fully supports selecting hours, minutes, and seconds alongside the date.
-- **Ethiopian Local Time Display** — Optional Ethiopian clock rendering (`time_format: ethiopian`) using local period labels and hour conversion from Gregorian time.
-- **Form Integration** — Powerful `EthiopicDatePicker` component with an interactive popup calendar.
-- **Table Support** — `EthiopicDateColumn` for displaying localized dates beautifully in your resource tables.
-- **Infolist Support** — `EthiopicDateEntry` for clean, read-only date displays on view pages.
-- **7 Unique Display Modes** — Customizable formatting modes including Amharic, Transliteration, Hybrid, and Compact views.
+Most calendar plugins only convert dates. This package provides a **complete time system**.
 
----
-
-## ⚙️ Requirements
-
-| Package            | Version           |
-| ------------------ | ----------------- |
-| **PHP**      | `^8.2` (Supports 8.3+) |
-| **Laravel**  | `^11.0 \| ^12.0 \| ^13.0` |
-| **Filament** | `^5.0`          |
-
----
-
-## 📦 Installation
-
-Install the package via composer:
-
-```bash
-composer require mammesat/filament-ethiopic-calendar
+```text
+Gregorian:  Apr 21, 2026 10:00 AM
+Ethiopian:  Miyazya 13, 2018 4:00 ጠዋት
+Dual:       Apr 21, 2026 (Miyazya 13, 2018)
+            10:00 AM (4:00 ጠዋት)
 ```
 
-### Publish Configuration (Optional)
-
-Publish the config file to globally customize default display modes, locales, and time picker settings:
-
-```bash
-php artisan vendor:publish --tag="filament-ethiopic-calendar-config"
-```
-
-If you are upgrading or modifying configuration, it is recommended to clear your caches:
-
-```bash
-php artisan optimize:clear
-```
-
----
-
-## 🚀 Usage
-
-### 📝 In Filament Forms
-
-Add the `EthiopicDatePicker` to your form schema. It extends Filament's native `DateTimePicker` and inherits most of its powerful features.
-
-```php
-use Mammesat\FilamentEthiopicCalendar\Fields\EthiopicDateTimePicker;
-
-EthiopicDateTimePicker::make('birth_date')
-    ->label('Date of Birth')
-    ->required()
-    // Optional methods to customize behavior per-field:
-    ->displayMode('ethiopic') // 'ethiopic' | 'gregorian' | 'dual' or a raw DisplayMode Enum
-    ->timeMode('ethiopian')   // 'gregorian' | 'ethiopian' | 'dual'
-    ->calendarLocale('am')    // 'am' for Amharic or 'en' for English
-    ->withTime(true)          // Enable or disable the time picker
-    ->showEthiopicHelper(true) // Show the Ethiopic date as helper text below input
-    ->showEthiopicSuffix(false); // Show the Ethiopic date as an input suffix
-
-// You can strictly enforce Ethiopic full-defaults dynamically using:
-// ->ethiopic() 
-```
-
-### 📊 In Filament Tables
-
-Display dates perfectly formatted in the Ethiopian calendar within your resource tables:
-
-```php
-use Mammesat\FilamentEthiopicCalendar\Tables\Columns\EthiopicDateColumn;
-use Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode;
-
-EthiopicDateColumn::make('created_at')
-    ->label('Created (Ethiopic)')
-    ->displayMode(DisplayMode::AmharicCombined)
-    ->sortable();
-```
-
-### 📋 In Filament Infolists
-
-Use the `EthiopicDateEntry` for elegant, read-only date displays on view pages:
-
-```php
-use Mammesat\FilamentEthiopicCalendar\Infolists\Components\EthiopicDateEntry;
-
-EthiopicDateEntry::make('registered_at')
-    ->label('Registration Date');
-```
-
----
-
-## 🎨 Configuration & Display Modes
-
-You can define global defaults in `config/ethiopic-calendar.php`:
-
-```php
-return [
-    // How Ethiopic strings are visibly formatted
-    // Easy string aliases: 'ethiopic' | 'gregorian' | 'dual'
-    'display_mode' => 'ethiopic',
-
-    // Controls the language of month and day names in the calendar popup UI
-    // 'am' (Amharic) or 'en' (English Transliteration)
-    'calendar_locale' => 'am',
-
-    // Enable or disable the time picker globally
-    'with_time' => false,
-
-    // Time display format:
-    // - 'gregorian' => standard HH:mm AM/PM
-    // - 'ethiopian' => local Ethiopian clock time (automatically shifts 6 hours)
-    // - 'dual'      => displays both Gregorian and Ethiopian time
-    'time_mode' => 'gregorian',
-];
-```
-
-### Ethiopian Time Format Rules
-
-When `with_time = true` and `time_mode = 'ethiopian' or 'dual'`, the package renders time using the 12-hour local Ethiopian clock system natively:
-
-- **Hour conversion**: `ethiopianHour = (gregorianHour + 6) % 12`, and `0` becomes `12`
-- **Minutes**: preserved and always shown as 2 digits
-- **Periods**:
-  - `06:00–11:59` → `ጥዋት`
-  - `12:00–17:59` → `ከሰዓት`
-  - `18:00–23:59` → `ማታ`
-  - `00:00–05:59` → `ለሊት`
-
-Examples:
-
-- `06:30` → `ጥዋት 12:30`
-- `12:45` → `ከሰዓት 6:45`
-- `19:00` → `ማታ 1:00`
-- `02:30` → `ለሊት 8:30`
-
-### Available Display Modes
-
-You can set these globally in the config or override them per-component using `->displayMode()`. You can pass these as strict `DisplayMode` Enums or use the Simple String APIs (`'ethiopic'`, `'gregorian'`, `'dual'`).
-
-| Enum Value                  | Description                          | Example Output                              |
-| --------------------------- | ------------------------------------ | ------------------------------------------- |
-| `AmharicNoWeek` (`ethiopic`)| Default Amharic, no weekday          | መስከረም 01, 2017                         |
-| `CleanGregorian` (`gregorian`)| Pure Gregorian format              | Apr 21, 2026                                |
-| `Hybrid` (`dual`)           | Bilingual (Amharic + English)        | Apr 21, 2026 (መስከረም 01, 2017)           |
-| `AmharicCombined`         | Fully localized Amharic with weekday | መስከረም 01, 2017 / ሰኞ                  |
-| `TransliterationCombined` | English transliteration with weekday | Meskerem 01, 2017 / MON                     |
-| `CompactAmharic`          | Compact spacing Amharic              | መስከረም 01, 2017 ሰኞ                    |
-| `TransliterationNoWeek`   | English transliteration, no weekday  | Meskerem 01, 2017                           |
-
----
-
-## 🛠️ How It Works (The Magic)
-
-1. **Selection**: User opens the picker and interacts with an entirely Ethiopic calendar interface (e.g., selecting *Meskerem 1, 2017*).
-2. **Internal Math**: The Alpine.js component instantly converts this selection to the corresponding Gregorian date (*September 11, 2024*).
-3. **Storage**: Filament handles the request, and standard Laravel validation sees a valid Gregorian date. It stores silently in your database as standard `Y-m-d H:i:s`.
-4. **Retrieval**: When displaying the date via `EthiopicDateColumn` or rendering the form field state, the PHP service converts it back to the precise Ethiopic format.
-
-*Zero database migrations required.*
+**Built for real-world Ethiopian applications:**
+* Schools & universities
+* Government systems
+* Financial platforms
+* Local business tools
 
 ---
 
@@ -205,10 +64,167 @@ You can set these globally in the config or override them per-component using `-
 
 ---
 
+## ⚙️ Requirements
+
+| Package            | Version           |
+| ------------------ | ----------------- |
+| **PHP**      | `^8.2` (Supports 8.3+) |
+| **Laravel**  | `^11.0 \| ^12.0 \| ^13.0` |
+| **Filament** | `^5.0`          |
+
+---
+
+## 📦 Installation
+
+Install the package via composer:
+
+```bash
+composer require mammesat/filament-ethiopic-calendar
+```
+
+Publish the config file to globally customize defaults:
+
+```bash
+php artisan vendor:publish --tag="filament-ethiopic-calendar-config"
+```
+
+If you are upgrading or modifying configuration, it is recommended to clear your caches:
+
+```bash
+php artisan optimize:clear
+```
+
+---
+
+## 🧩 Core Features
+
+### 📅 Ethiopian Calendar Engine
+* **Native Filament Experience:** Blends perfectly using Tailwind CSS and Alpine.js.
+* **Gregorian DB Storage:** Dates are selected in Ethiopic but stored as standard `Y-m-d H:i:s` strings, ensuring Eloquent compatibility.
+* **13-Month Support:** Mathematically accurate support for the 13th month (*Pagume*).
+
+### 🕰️ Ethiopian Time System (🔥 Unique Feature)
+Unlike standard systems, Ethiopian time:
+* Starts at **6:00 AM**
+* Uses a **shifted 12-hour clock**
+* Has culturally relevant day periods:
+
+| Period           | Time Range    |
+| ---------------- | ------------- |
+| ጠዋት (Morning)    | 06:00 – 11:59 |
+| ከሰዓት (Afternoon) | 12:00 – 17:59 |
+| ማታ (Evening)     | 18:00 – 23:59 |
+| ለሊት (Night)      | 00:00 – 05:59 |
+
+---
+
+## 🚀 Basic Usage
+
+### 📝 Form Field
+
+Add the `EthiopicDateTimePicker` to your form schema. It extends Filament's native `DateTimePicker` and inherits its features.
+
+```php
+use Mammesat\FilamentEthiopicCalendar\Fields\EthiopicDateTimePicker;
+
+EthiopicDateTimePicker::make('birth_date')
+    ->label('Date of Birth')
+    ->required()
+    // Optional methods to customize behavior per-field:
+    ->displayMode('dual')     // 'ethiopic' | 'gregorian' | 'dual'
+    ->timeMode('dual')        // 'gregorian' | 'ethiopian' | 'dual'
+    ->calendarLocale('am')    // 'am' (Amharic) | 'en' (English)
+    ->withTime(true)
+    ->showEthiopicHelper(true);
+
+// Or enforce strictly Ethiopic defaults dynamically:
+// ->ethiopic() 
+```
+
+### 📊 Table Column
+
+Display dates beautifully formatted within your resource tables:
+
+```php
+use Mammesat\FilamentEthiopicCalendar\Tables\Columns\EthiopicDateColumn;
+
+EthiopicDateColumn::make('created_at')
+    ->label('Created')
+    ->displayMode('dual')
+    ->timeMode('dual')
+    ->sortable();
+```
+
+### 📋 Infolist Entry
+
+For clean, read-only displays on view pages:
+
+```php
+use Mammesat\FilamentEthiopicCalendar\Infolists\Components\EthiopicDateEntry;
+
+EthiopicDateEntry::make('registered_at')
+    ->displayMode('ethiopic')
+    ->timeMode('ethiopian');
+```
+
+---
+
+## 🎨 Configuration & Display Modes
+
+Define global defaults in `config/ethiopic-calendar.php`:
+
+```php
+return [
+    'display_mode' => 'ethiopic',
+    'calendar_locale' => 'am',
+    'with_time' => false,
+    'time_mode' => 'gregorian',
+];
+```
+
+### 🔁 Available Display Modes
+
+| Enum Value                  | Description                          | Example Output                              |
+| --------------------------- | ------------------------------------ | ------------------------------------------- |
+| `AmharicNoWeek` (`ethiopic`)| Default Amharic, no weekday          | መስከረም 01, 2017                         |
+| `CleanGregorian` (`gregorian`)| Pure Gregorian format              | Sep, 06 2026                                |
+| `Hybrid` (`dual`)           | Bilingual (Amharic + English)        | Sep, 06 2026 (መስከረም 01, 2017)           |
+| `AmharicCombined`         | Fully localized Amharic with weekday | መስከረም 01, 2017 / ሰኞ                  |
+| `TransliterationCombined` | English transliteration with weekday | Meskerem 01, 2017 / MON                     |
+| `CompactAmharic`          | Compact spacing Amharic              | መስከረም 01, 2017 ሰኞ                    |
+| `TransliterationNoWeek`   | English transliteration, no weekday  | Meskerem 01, 2017                           |
+
+
+---
+
+## 🧠 Architecture & How It Works
+
+This package is built with a clean, layered architecture:
+
+1. **`EthiopicCalendarService`:** Date conversion using Julian Day Number math.
+2. **`EthiopicTimeService`:** Solves the 6-hour shifted clock logic.
+3. **`EthiopicFormatter`:** The Single Source of Truth (`SSOT`) for UI display strings.
+
+**The Workflow:**
+1. **Selection**: User interacts with an entirely Ethiopic calendar interface.
+2. **Internal Math**: Alpine.js instantly converts the selection to the corresponding Gregorian date.
+3. **Storage**: It stores silently in your database as standard `Y-m-d H:i:s`. *Zero database migrations required.*
+4. **Retrieval**: When displaying the date, `EthiopicFormatter` converts it back to the precise Ethiopic format.
+
+---
+
+## 🔄 Backward Compatibility
+
+* Existing `EthiopicDatePicker` syntax still works completely.
+* It is mapped safely to the new `EthiopicDateTimePicker` architecture.
+* No breaking changes between v1.0 and v1.1.
+
+---
+
 ## 🐛 Troubleshooting
 
 **Dates not converting correctly?**
-Ensure your database column type is `DATE`, `DATETIME`, or `TIMESTAMP`. The plugin expects and stores standard Gregorian date strings.
+Ensure your database column type is `DATE`, `DATETIME`, or `TIMESTAMP`. The plugin expects standard Gregorian strings.
 
 **Calendar CSS/JS issues?**
 Ensure you have registered the plugin assets if you are using a custom panel. The package does this automatically for standard Filament Admin setups.
@@ -220,19 +236,46 @@ Ensure you have registered the plugin assets if you are using a custom panel. Th
 ```bash
 composer test
 ```
+✔ 70+ tests
+✔ Full coverage for calendar conversion, time system, and formatting logic.
 
-## 📜 Changelog
+---
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+## 🗺️ Roadmap
+
+### v1.x
+* ✅ Calendar conversion
+* ✅ Ethiopian time system
+* ✅ Dual display modes
+* 🔄 UI improvements (in progress)
+
+### v2.0
+* 🔜 Native Ethiopic calendar UI (no Flatpickr)
+* 🔜 Advanced localization system
+* 🔜 Multi-calendar support (extensible engine)
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+Contributions are welcome! Please open issues or pull requests for bugs, improvements, or localization additions. See [CONTRIBUTING](CONTRIBUTING.md) for details.
+
+---
 
 ## 🔒 Security Vulnerabilities
 
 If you discover any security-related issues, please email instead of using the issue tracker.
 
+---
+
 ## 📄 License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
+
+---
+
+## 🧠 Final Note
+
+**This package is not just about formatting dates.**
+
+It defines how Ethiopian calendar and time systems natively integrate into modern Laravel applications.
