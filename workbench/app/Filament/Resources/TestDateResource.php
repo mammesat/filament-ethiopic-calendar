@@ -41,9 +41,10 @@ class TestDateResource extends Resource
                     ->withTime($settings->with_time)
                     ->required()
                     ->live()
-                    ->helperText(fn ($state) => $state 
-                        ? app(EthiopicFormatter::class)->formatDateTime($state, $settings->display_mode, $settings->time_mode)
-                        : null
+                    ->helperText(
+                        fn($state) => $state
+                            ? app(EthiopicFormatter::class)->formatDateTime($state, $settings->display_mode, $settings->time_mode)
+                            : null
                     ),
             ]);
     }
@@ -59,13 +60,14 @@ class TestDateResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('birth_date')
                     ->label('Birth Date (Gregorian)')
-                    ->formatStateUsing(fn ($state) => $settings->with_time 
-                        ? \Carbon\Carbon::parse($state)->format('M, j Y g:i A') 
-                        : \Carbon\Carbon::parse($state)->format('M, j Y')
+                    ->formatStateUsing(
+                        fn($state) => $settings->with_time
+                            ? \Carbon\Carbon::parse($state)->format('M, j Y g:i A')
+                            : \Carbon\Carbon::parse($state)->format('M, j Y')
                     )
                     ->sortable(),
                 EthiopicDateColumn::make('birth_date_ethiopic')
-                    ->getStateUsing(fn ($record) => $record->birth_date)
+                    ->getStateUsing(fn($record) => $record->birth_date)
                     ->label('Birth Date (Ethiopian)')
                     ->displayMode($settings->display_mode)
                     ->timeMode($settings->time_mode)

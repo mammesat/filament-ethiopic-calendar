@@ -187,21 +187,21 @@ You can set these globally in the config or override them per-component using `-
 
 ## 📸 Screenshots
 
-### Form Component (Amharic)
+### The Ethiopian Form Picker (with Time Selection)
 
-![Amharic Form Picker](art/form-amharic.png)
+![Interactive Form Picker](art/form-picker.png)
 
-### Form Component (English Transliteration)
+### Live Helper Text (Dual Time Conversions)
 
-![English Form Picker](art/form-english.png)
+![Form Helper Text](art/form-picker-helperText.png)
 
-### Table Column (Amharic)
+### Dual Calendar & Time Tracking in Tables
 
-![Amharic Table Column](art/table-amharic.png)
+![Dual Data Table](art/data-table.png)
 
-### Table Column (English Transliteration)
+### Global Calendar & Time Settings Panel
 
-![English Table Column](art/table-english.png)
+![Calendar Settings Panel](art/settings-panel.png)
 
 ---
 
