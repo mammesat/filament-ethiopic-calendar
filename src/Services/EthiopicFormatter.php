@@ -42,7 +42,11 @@ final class EthiopicFormatter
         $mode = $this->resolveDisplayMode($mode);
 
         if ($mode === DisplayMode::CleanGregorian) {
-            return $gregorianDate;
+            try {
+                return Carbon::parse($gregorianDate)->format('M, j Y');
+            } catch (\Throwable) {
+                return $gregorianDate;
+            }
         }
 
         $ethiopicString = $this->calendar->toEthiopicString($gregorianDate);

@@ -60,8 +60,8 @@ class TestDateResource extends Resource
                 Tables\Columns\TextColumn::make('birth_date')
                     ->label('Birth Date (Gregorian)')
                     ->formatStateUsing(fn ($state) => $settings->with_time 
-                        ? \Carbon\Carbon::parse($state)->format('M j, Y g:i A') 
-                        : \Carbon\Carbon::parse($state)->format('M j, Y')
+                        ? \Carbon\Carbon::parse($state)->format('M, j Y g:i A') 
+                        : \Carbon\Carbon::parse($state)->format('M, j Y')
                     )
                     ->sortable(),
                 EthiopicDateColumn::make('birth_date_ethiopic')
