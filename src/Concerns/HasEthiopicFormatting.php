@@ -6,6 +6,7 @@ namespace Mammesat\FilamentEthiopicCalendar\Concerns;
 
 use Carbon\Carbon;
 use Mammesat\FilamentEthiopicCalendar\Services\EthiopicFormatter;
+use Mammesat\FilamentEthiopicCalendar\Support\EthiopicConfig;
 
 /**
  * Shared formatting concern for Table Columns and Infolist Entries.
@@ -35,7 +36,7 @@ trait HasEthiopicFormatting
      */
     public function hasTime(): bool
     {
-        return $this->withTimeOverride ?? config('ethiopic-calendar.with_time', false);
+        return $this->withTimeOverride ?? EthiopicConfig::withTime();
     }
 
     /**

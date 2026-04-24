@@ -153,6 +153,30 @@ final class EthiopicFormatter
     // ──────────────────────────────────────────────
 
     /**
+     * Format a time string using the Ethiopian time system.
+     *
+     * Accepts nullable input, returns null for invalid values.
+     * Uses the exact conversion: ($gregorianHour + 6) % 12 (0 → 12).
+     *
+     * @param  string|null  $time  Time in HH:MM or HH:MM:SS format (Gregorian 24h)
+     * @return string|null  Formatted Ethiopian time (e.g., "ጠዋት 4:00") or null
+     */
+    public function formatEthiopianTime(?string $time): ?string
+    {
+        if ($time === null || trim($time) === '') {
+            return null;
+        }
+
+        $parsed = $this->timeService->parseTimeString($time);
+
+        if ($parsed === null) {
+            return null;
+        }
+
+        return $this->timeService->formatEthiopianTime($parsed['hour'], $parsed['minute']);
+    }
+
+    /**
      * Get a localized month name for the given display mode.
      */
     public function getMonthName(int $monthIndex, ?string $locale = null): string

@@ -8,8 +8,16 @@
         "filament",
         "filamentphp",
         "ethiopia",
+        "ethiopic",
         "ethiopic-calendar",
+        "ethiopian-calendar",
+        "filament-ethiopian-calendar",
+        "ethiopian-datepicker",
+        "filament-ethiopian-datepicker",
+        "ethiopian-time",
+        "calendar",
         "datepicker",
+        "ge'ez",
         "livewire"
     ],
     "authors": [

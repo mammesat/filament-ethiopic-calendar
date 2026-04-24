@@ -7,25 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.0] - 2026-04-21
+## [1.1.0] - 2026-04-24
 
 ### Added
+- `Support\EthiopicFormatter` — thin static facade for programmatic formatting access
+- `Support\SettingsResolver` — unified config resolution (Field Override → Config → Default)
+- `formatEthiopianTime()` method on `Services\EthiopicFormatter` for safe, null-aware time formatting
+- `SettingsResolverTest` — full unit test suite for override priority logic
+- Expanded `EthiopicFormatterTest` — Ethiopian time boundary tests, Pagume (13th month) tests, all display mode verification
 - Ethiopian time system support with correct period mapping (ጥዋት, ከሰዓት, ማታ, ለሊት)
 - `withTime()` fluent method for enabling time picker per field
-- `time_format` config option (`standard` / `ethiopian`)
-- Time display in `EthiopicDateColumn` and `EthiopicDateEntry` when Ethiopian time mode is active
-- `formatEthiopianTime()` method on `EthiopicCalendar` service
+- `time_mode` config option (`gregorian` / `ethiopian` / `dual`)
+- Time display in `EthiopicDateColumn` and `EthiopicDateEntry` when time mode is active
 - PHP 8.4 support in CI matrix
-- `CHANGELOG.md` for release tracking
+- Complete configuration reference in README
+- Programmatic API documentation with usage examples
 
 ### Fixed
-- Missing `use InvalidArgumentException` import in `EthiopicCalendar` service (would cause `Class not found` errors on invalid date input)
-- Unguarded `Carbon::parse()` in `EthiopicDateColumn` — malformed database values no longer crash entire table rendering
-- Unguarded `Carbon::parse()` in `EthiopicDateEntry` — same fix for infolist rendering
+- Configuration leakage: 3 direct `config()` calls replaced with centralized `EthiopicConfig` accessors
+  - `HasEthiopicFormatting::hasTime()`
+  - `EthiopicDateTimePicker::hasTime()`
+  - `EthiopicDateTimePicker::getCalendarLocale()`
+- Missing `use InvalidArgumentException` import in `EthiopicCalendar` service
+- Unguarded `Carbon::parse()` in `EthiopicDateColumn` and `EthiopicDateEntry`
 - Hardcoded absolute path in `testbench.yaml` replaced with portable relative path
-- Amharic month 13 inconsistency between lang file (`ጳጉሜን`) and service (`ጳጉሜ`) — unified to `ጳጉሜ`
+- Amharic month 13 inconsistency unified to `ጳጉሜ`
 - `calendarLocale()` now validates input and clamps to `'am'` on invalid values
-- Removed redundant `strtotime()` check in `formatEthiopianTime()` (regex is the authoritative validator)
+
+### Changed
+- All UI components now route config resolution through `EthiopicConfig`
+- Expanded test suite from ~70 to 80+ tests
+- Refactored formatting to enforce single source of truth (`Services\EthiopicFormatter`)
 
 ## [1.0.0] - 2026-04-19
 

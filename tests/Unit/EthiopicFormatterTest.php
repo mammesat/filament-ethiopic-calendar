@@ -276,4 +276,114 @@ final class EthiopicFormatterTest extends TestCase
         self::assertSame('እሁድ', $this->formatter->getDayName(7, 'long', 'am'));
         self::assertSame('Sunday', $this->formatter->getDayName(7, 'long', 'en'));
     }
+
+    // ──────────────────────────────────────────────
+    // formatEthiopianTime() tests
+    // ──────────────────────────────────────────────
+
+    public function test_format_ethiopian_time_morning_boundary(): void
+    {
+        // 06:00 Gregorian → ጠዋት 12:00
+        self::assertSame('ጠዋት 12:00', $this->formatter->formatEthiopianTime('06:00'));
+    }
+
+    public function test_format_ethiopian_time_afternoon_boundary(): void
+    {
+        // 12:00 Gregorian → ከሰዓት 6:00
+        self::assertSame('ከሰዓት 6:00', $this->formatter->formatEthiopianTime('12:00'));
+    }
+
+    public function test_format_ethiopian_time_evening_boundary(): void
+    {
+        // 18:00 Gregorian → ማታ 12:00
+        self::assertSame('ማታ 12:00', $this->formatter->formatEthiopianTime('18:00'));
+    }
+
+    public function test_format_ethiopian_time_night_boundary(): void
+    {
+        // 00:00 Gregorian → ለሊት 6:00
+        self::assertSame('ለሊት 6:00', $this->formatter->formatEthiopianTime('00:00'));
+    }
+
+    public function test_format_ethiopian_time_with_minutes(): void
+    {
+        // 10:30 Gregorian → ጠዋት 4:30
+        self::assertSame('ጠዋት 4:30', $this->formatter->formatEthiopianTime('10:30'));
+    }
+
+    public function test_format_ethiopian_time_with_seconds(): void
+    {
+        // HH:MM:SS format should also work (seconds are ignored)
+        self::assertSame('ጠዋት 4:30', $this->formatter->formatEthiopianTime('10:30:45'));
+    }
+
+    public function test_format_ethiopian_time_null_input(): void
+    {
+        self::assertNull($this->formatter->formatEthiopianTime(null));
+    }
+
+    public function test_format_ethiopian_time_empty_input(): void
+    {
+        self::assertNull($this->formatter->formatEthiopianTime(''));
+        self::assertNull($this->formatter->formatEthiopianTime('   '));
+    }
+
+    public function test_format_ethiopian_time_invalid_input(): void
+    {
+        self::assertNull($this->formatter->formatEthiopianTime('not-a-time'));
+        self::assertNull($this->formatter->formatEthiopianTime('25:00'));
+        self::assertNull($this->formatter->formatEthiopianTime('12:60'));
+    }
+
+    // ──────────────────────────────────────────────
+    // Pagume (13th month) tests
+    // ──────────────────────────────────────────────
+
+    public function test_format_date_pagume_non_leap_year(): void
+    {
+        // 2023-09-06 → Pagume 1, 2015 (non-leap year, Pagume has 5 days)
+        $result = $this->formatter->formatDate('2023-09-06', DisplayMode::AmharicNoWeek);
+
+        self::assertNotNull($result);
+        self::assertStringContainsString('ጳጉሜ', $result);
+        self::assertStringContainsString('2015', $result);
+    }
+
+    public function test_format_date_pagume_leap_year(): void
+    {
+        // 2023-09-11 → Pagume 6, 2015 (leap year — Pagume has 6 days)
+        // Actually 2015 EC is a leap year: (2015+1) % 4 === 0 → true
+        $result = $this->formatter->formatDate('2023-09-11', DisplayMode::AmharicNoWeek);
+
+        self::assertNotNull($result);
+        self::assertStringContainsString('ጳጉሜ', $result);
+    }
+
+    // ──────────────────────────────────────────────
+    // Round-trip verification
+    // ──────────────────────────────────────────────
+
+    public function test_format_date_produces_consistent_output(): void
+    {
+        $date = '2024-01-15';
+
+        // Same date should always produce the same output
+        $result1 = $this->formatter->formatDate($date, DisplayMode::AmharicNoWeek);
+        $result2 = $this->formatter->formatDate($date, DisplayMode::AmharicNoWeek);
+
+        self::assertSame($result1, $result2);
+    }
+
+    public function test_all_display_modes_produce_output_for_valid_date(): void
+    {
+        $date = '2023-09-12';
+
+        foreach (DisplayMode::cases() as $mode) {
+            $result = $this->formatter->formatDate($date, $mode);
+
+            self::assertNotNull($result, "DisplayMode::{$mode->name} returned null for a valid date");
+            self::assertNotEmpty($result, "DisplayMode::{$mode->name} returned empty for a valid date");
+        }
+    }
 }
+

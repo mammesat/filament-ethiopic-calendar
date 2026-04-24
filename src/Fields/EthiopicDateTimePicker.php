@@ -10,6 +10,7 @@ use Mammesat\FilamentEthiopicCalendar\Concerns\HasEthiopicTimeMode;
 use Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode;
 use Mammesat\FilamentEthiopicCalendar\Enums\TimeMode;
 use Mammesat\FilamentEthiopicCalendar\Services\EthiopicFormatter;
+use Mammesat\FilamentEthiopicCalendar\Support\EthiopicConfig;
 
 /**
  * Ethiopian Calendar & Time Engine — Primary Filament v5 Field.
@@ -139,7 +140,7 @@ class EthiopicDateTimePicker extends DateTimePicker
      */
     public function getCalendarLocale(): string
     {
-        return $this->calendarLocaleOverride ?? config('ethiopic-calendar.calendar_locale', 'am');
+        return $this->calendarLocaleOverride ?? EthiopicConfig::calendarLocale();
     }
 
     /**
@@ -157,7 +158,7 @@ class EthiopicDateTimePicker extends DateTimePicker
      */
     public function hasTime(): bool
     {
-        return $this->withTimeOverride ?? config('ethiopic-calendar.with_time', false);
+        return $this->withTimeOverride ?? EthiopicConfig::withTime();
     }
 
     // ──────────────────────────────────────────────

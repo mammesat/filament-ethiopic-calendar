@@ -94,14 +94,11 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Time Display Format (DEPRECATED)
+    | Time Display Format (DEPRECATED — use 'time_mode' instead)
     |--------------------------------------------------------------------------
     |
-    | Legacy key — use 'time_mode' instead.
-    | Kept for backward compatibility. If 'time_mode' is set, this is ignored.
-    |
-    | - 'standard':  Maps to time_mode 'gregorian'
-    | - 'ethiopian': Maps to time_mode 'ethiopian'
+    | Legacy key kept for backward compatibility. Ignored if 'time_mode' is set.
+    | Maps: 'standard' → 'gregorian', 'ethiopian' → 'ethiopian'
     |
     */
     // 'time_format' => 'standard',
