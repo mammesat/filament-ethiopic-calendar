@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Workbench\App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 use Mammesat\FilamentEthiopicCalendar\Fields\EthiopicDateTimePicker;
-use Mammesat\FilamentEthiopicCalendar\Tables\Columns\EthiopicDateColumn;
+use Mammesat\FilamentEthiopicCalendar\Services\EthiopicFormatter;
 use Workbench\App\Filament\Resources\TestDateResource\Pages;
 use Workbench\App\Models\TestDate;
 use Workbench\App\Models\TestSetting;
-use Mammesat\FilamentEthiopicCalendar\Services\EthiopicFormatter;
 
 class TestDateResource extends Resource
 {
@@ -30,28 +31,46 @@ class TestDateResource extends Resource
     public static function form(Schema $schema): Schema
     {
         $settings = TestSetting::current();
+        static::applyRuntimeLocale($settings->calendar_locale);
 
         return $schema
             ->components([
                 EthiopicDateTimePicker::make('birth_date')
                     ->label('Birth Date')
-                    ->displayMode($settings->display_mode)
-                    ->timeMode($settings->time_mode)
-                    ->calendarLocale($settings->calendar_locale)
-                    ->withTime($settings->with_time)
+                    ->displayMode(static::normalizeDisplayMode($settings->display_mode))
+                    ->timeMode(static::normalizeTimeMode($settings->time_mode))
+                    ->calendarLocale(in_array($settings->calendar_locale, ['am', 'en'], true) ? $settings->calendar_locale : 'am')
+                    ->withTime((bool) $settings->with_time)
                     ->required()
                     ->live()
-                    ->helperText(
-                        fn($state) => $state
-                            ? app(EthiopicFormatter::class)->formatDateTime($state, $settings->display_mode, $settings->time_mode)
-                            : null
-                    ),
+                    ->helperText(function ($state) use ($settings): ?string {
+                        if (! $state) {
+                            return null;
+                        }
+
+                        $displayMode = static::normalizeDisplayMode($settings->display_mode);
+                        $timeMode = static::normalizeTimeMode($settings->time_mode);
+                        $locale = in_array($settings->calendar_locale, ['am', 'en'], true) ? $settings->calendar_locale : 'am';
+
+                        static::applyRuntimeLocale($locale);
+
+                        $dateTime = Carbon::parse($state)->format($settings->with_time ? 'Y-m-d H:i:s' : 'Y-m-d');
+
+                        $formatted = app(EthiopicFormatter::class)->formatDateTime(
+                            $dateTime,
+                            $displayMode,
+                            $timeMode,
+                        );
+
+                        return 'Will be displayed as: ' . $formatted;
+                    }),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         $settings = TestSetting::current();
+        static::applyRuntimeLocale($settings->calendar_locale);
 
         return $table
             ->columns([
@@ -59,19 +78,33 @@ class TestDateResource extends Resource
                     ->label('ID')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('birth_date')
-                    ->label('Birth Date (Gregorian)')
-                    ->formatStateUsing(
-                        fn($state) => $settings->with_time
-                            ? \Carbon\Carbon::parse($state)->format('M, j Y g:i A')
-                            : \Carbon\Carbon::parse($state)->format('M, j Y')
-                    )
+                    ->label('Display Output')
+                    ->formatStateUsing(function ($state) use ($settings): HtmlString {
+                        $dateTime = Carbon::parse($state)->format($settings->with_time ? 'Y-m-d H:i:s' : 'Y-m-d');
+
+                        $formatted = app(EthiopicFormatter::class)->formatDateTime(
+                            $dateTime,
+                            static::normalizeDisplayMode($settings->display_mode),
+                            static::normalizeTimeMode($settings->time_mode),
+                        ) ?? '—';
+
+                        if ((bool) $settings->with_time && static::normalizeDisplayMode($settings->display_mode) === 'dual' && static::normalizeTimeMode($settings->time_mode) === 'dual') {
+                            $formatted = preg_replace('/\)\s+/', ")\n", $formatted, 1) ?? $formatted;
+                        }
+
+                        return new HtmlString(nl2br(e($formatted)));
+                    })
+                    ->html()
+                    ->wrap()
                     ->sortable(),
-                EthiopicDateColumn::make('birth_date_ethiopic')
-                    ->getStateUsing(fn($record) => $record->birth_date)
-                    ->label('Birth Date (Ethiopian)')
-                    ->displayMode($settings->display_mode)
-                    ->timeMode($settings->time_mode)
-                    ->withTime($settings->with_time)
+                Tables\Columns\TextColumn::make('birth_date')
+                    ->label('Stored Value (Gregorian)')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->formatStateUsing(
+                        fn ($state) => $settings->with_time
+                            ? Carbon::parse($state)->format('M j, Y g:i A')
+                            : Carbon::parse($state)->format('M j, Y')
+                    )
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')
@@ -88,5 +121,25 @@ class TestDateResource extends Resource
             'create' => Pages\CreateTestDate::route('/create'),
             'edit' => Pages\EditTestDate::route('/{record}/edit'),
         ];
+    }
+
+    private static function applyRuntimeLocale(?string $locale): void
+    {
+        config(['ethiopic-calendar.calendar_locale' => in_array($locale, ['am', 'en'], true) ? $locale : 'am']);
+    }
+
+    private static function normalizeDisplayMode(?string $mode): string
+    {
+        return match ($mode) {
+            'gregorian', 'clean_gregorian' => 'gregorian',
+            'dual', 'hybrid' => 'dual',
+            'ethiopic', 'amharic_no_week', 'transliteration_no_week', 'amharic_combined', 'transliteration_combined', 'compact_amharic' => 'ethiopic',
+            default => 'ethiopic',
+        };
+    }
+
+    private static function normalizeTimeMode(?string $mode): string
+    {
+        return in_array($mode, ['gregorian', 'ethiopian', 'dual'], true) ? $mode : 'gregorian';
     }
 }

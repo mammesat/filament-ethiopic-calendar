@@ -2,28 +2,30 @@
 
 namespace Workbench\App\Filament\Pages;
 
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Form;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Workbench\App\Models\TestSetting;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Mammesat\FilamentEthiopicCalendar\Services\EthiopicFormatter;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Support\HtmlString;
+use Mammesat\FilamentEthiopicCalendar\Services\EthiopicFormatter;
+use Workbench\App\Models\TestSetting;
 
 class TestSettings extends Page implements HasForms
 {
     use InteractsWithForms;
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cog-6-tooth';
+
     protected static ?string $navigationLabel = 'Calendar & Time Settings';
+
     protected static ?string $title = 'Calendar & Time Settings';
+
     protected static string | \UnitEnum | null $navigationGroup = 'Test Dates';
+
     protected static ?int $navigationSort = 10;
 
     public ?array $data = [];
@@ -35,10 +37,10 @@ class TestSettings extends Page implements HasForms
         $setting = TestSetting::current();
 
         $this->getForm('form')->fill([
-            'display_mode' => $setting->display_mode,
-            'time_mode' => $setting->time_mode,
-            'calendar_locale' => $setting->calendar_locale,
-            'with_time' => $setting->with_time,
+            'display_mode' => $this->normalizeDisplayMode($setting->display_mode),
+            'time_mode' => $this->normalizeTimeMode($setting->time_mode),
+            'calendar_locale' => in_array($setting->calendar_locale, ['am', 'en'], true) ? $setting->calendar_locale : 'am',
+            'with_time' => (bool) $setting->with_time,
         ]);
     }
 
@@ -47,80 +49,69 @@ class TestSettings extends Page implements HasForms
         return $schema
             ->components([
                 Section::make('Calendar System')
-                    ->icon('heroicon-o-calendar')
+                    ->description('Choose how dates should appear in your forms, tables, and infolists.')
+                    ->icon('heroicon-o-calendar-days')
                     ->components([
                         Select::make('display_mode')
-                            ->label('Calendar Display')
+                            ->label('Date Display')
                             ->options([
-                                'ethiopic' => 'Ethiopic',
+                                'ethiopic' => 'Ethiopian',
                                 'gregorian' => 'Gregorian',
-                                'dual' => 'Dual',
+                                'dual' => 'Dual (Ethiopian + Gregorian)',
                             ])
-                            ->helperText('Controls how dates are displayed across the system.')
+                            ->helperText('Choose how dates are shown to users.')
                             ->required()
                             ->live(),
                     ]),
 
                 Section::make('Time System')
+                    ->description('This plugin includes the full Ethiopian time system (6-hour shift), not just AM/PM formatting.')
                     ->icon('heroicon-o-clock')
                     ->components([
                         Select::make('time_mode')
-                            ->label('Time System')
+                            ->label('Time Display')
                             ->options([
                                 'gregorian' => 'Gregorian (10:00 AM)',
                                 'ethiopian' => 'Ethiopian (4:00 ጠዋት)',
-                                'dual' => 'Dual (10:00 AM (4:00 ጠዋት))',
+                                'dual' => 'Dual (10:00 AM + 4:00 ጠዋት)',
                             ])
-                            ->helperText('Defines how time is interpreted and displayed.')
+                            ->helperText('Dual mode is recommended for applications that support both Ethiopian and Gregorian users.')
                             ->required()
                             ->live(),
                     ]),
 
                 Section::make('Localization')
-                    ->icon('heroicon-o-globe-alt')
+                    ->description('Pick the language for Ethiopian month and day names.')
+                    ->icon('heroicon-o-language')
                     ->components([
                         Select::make('calendar_locale')
-                            ->label('Calendar Locale')
+                            ->label('Ethiopian Language')
                             ->options([
-                                'am' => 'Amharic',
-                                'en' => 'English',
+                                'am' => 'Ethiopian (Amharic)',
+                                'en' => 'Ethiopian (English)',
                             ])
+                            ->helperText('Used for Ethiopian labels in Ethiopian and dual display modes.')
                             ->required()
                             ->live(),
                     ]),
 
                 Section::make('Behavior')
-                    ->icon('heroicon-o-cog-6-tooth')
+                    ->description('Fine-tune whether date-only or date-and-time values are displayed.')
+                    ->icon('heroicon-o-adjustments-horizontal')
                     ->components([
                         Toggle::make('with_time')
-                            ->label('Include Time')
+                            ->label('Include time in output')
+                            ->helperText('Enable this to show both calendar and Ethiopian time output together.')
                             ->live(),
                     ]),
 
                 Section::make('Live Preview')
-                    ->icon('heroicon-o-eye')
+                    ->description('Instantly preview Gregorian, Ethiopian, and Dual output for the same datetime value.')
+                    ->icon('heroicon-o-sparkles')
                     ->components([
                         Placeholder::make('preview')
-                            ->label('Current Output Example')
-                            ->content(function ($get) {
-                                $formatter = app(EthiopicFormatter::class);
-
-                                $date = '2026-04-21 10:00:00';
-
-                                // If they don't include time, we should only pass date? 
-                                // No, just let Formatter handle it or strip time manually if with_time is false.
-                                // Actually, if with_time is false, formatDateTime just formats what we pass. 
-                                // To simulate realistic output, we pass datetime if with_time is true, else date only.
-                                if (! $get('with_time')) {
-                                    $date = '2026-04-21';
-                                }
-
-                                return view('workbench::filament.components.live-preview', [
-                                    'displayMode' => $get('display_mode'),
-                                    'timeMode' => $get('time_mode'),
-                                    'withTime' => $get('with_time'),
-                                ]);
-                            }),
+                            ->label('Example datetime: 2026-04-21 10:00:00')
+                            ->content(fn ($get) => view('workbench::filament.components.live-preview', $this->buildPreviewData($get))),
                     ]),
             ])
             ->statePath('data')
@@ -133,15 +124,65 @@ class TestSettings extends Page implements HasForms
 
         $setting = TestSetting::current();
         $setting->update([
-            'display_mode' => $data['display_mode'],
-            'time_mode' => $data['time_mode'],
-            'calendar_locale' => $data['calendar_locale'],
-            'with_time' => $data['with_time'],
+            'display_mode' => $this->normalizeDisplayMode($data['display_mode'] ?? 'ethiopic'),
+            'time_mode' => $this->normalizeTimeMode($data['time_mode'] ?? 'gregorian'),
+            'calendar_locale' => in_array($data['calendar_locale'] ?? 'am', ['am', 'en'], true) ? $data['calendar_locale'] : 'am',
+            'with_time' => (bool) ($data['with_time'] ?? false),
         ]);
 
         Notification::make()
-            ->title('Settings Saved Successfully')
+            ->title('Settings saved')
+            ->body('Calendar, time, and localization preferences have been updated.')
             ->success()
             ->send();
+    }
+
+    private function buildPreviewData(callable $get): array
+    {
+        $displayMode = $this->normalizeDisplayMode((string) $get('display_mode'));
+        $timeMode = $this->normalizeTimeMode((string) $get('time_mode'));
+        $locale = in_array($get('calendar_locale'), ['am', 'en'], true) ? $get('calendar_locale') : 'am';
+        $withTime = (bool) $get('with_time');
+
+        $formatter = app(EthiopicFormatter::class);
+
+        config(['ethiopic-calendar.calendar_locale' => $locale]);
+
+        $previewDateTime = $withTime ? '2026-04-21 10:00:00' : '2026-04-21';
+
+        $lines = [
+            'gregorian' => $formatter->formatDateTime($previewDateTime, 'gregorian', $timeMode),
+            'ethiopian' => $formatter->formatDateTime($previewDateTime, $this->ethiopicDisplayModeForLocale($locale), $timeMode),
+            'dual' => $formatter->formatDateTime($previewDateTime, 'dual', $timeMode),
+        ];
+
+        return [
+            'activeMode' => $displayMode,
+            'activeTimeMode' => $timeMode,
+            'locale' => $locale,
+            'withTime' => $withTime,
+            'lines' => $lines,
+            'activeLine' => $lines[$displayMode] ?? null,
+        ];
+    }
+
+    private function ethiopicDisplayModeForLocale(string $locale): string
+    {
+        return $locale === 'en' ? 'transliteration_no_week' : 'amharic_no_week';
+    }
+
+    private function normalizeDisplayMode(?string $mode): string
+    {
+        return match ($mode) {
+            'gregorian', 'clean_gregorian' => 'gregorian',
+            'dual', 'hybrid' => 'dual',
+            'ethiopic', 'amharic_no_week', 'transliteration_no_week', 'amharic_combined', 'transliteration_combined', 'compact_amharic' => 'ethiopic',
+            default => 'ethiopic',
+        };
+    }
+
+    private function normalizeTimeMode(?string $mode): string
+    {
+        return in_array($mode, ['gregorian', 'ethiopian', 'dual'], true) ? $mode : 'gregorian';
     }
 }

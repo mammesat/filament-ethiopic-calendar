@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('test_settings', function (Blueprint $table) {
             $table->id();
-            $table->string('display_mode')->default('amharic_combined');
+            $table->string('display_mode')->default('ethiopic');
             $table->string('calendar_locale')->default('am');
             $table->boolean('with_time')->default(false);
             $table->timestamps();
