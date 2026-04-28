@@ -22,7 +22,7 @@ class TestSetting extends Model
         return self::firstOrCreate(
             ['id' => 1],
             [
-                'display_mode' => 'amharic_combined',
+                'display_mode' => 'ethiopic',
                 'time_mode' => 'gregorian',
                 'calendar_locale' => 'am',
                 'with_time' => false,
