@@ -46,13 +46,22 @@ class EthiopicDateTimePicker extends DateTimePicker
         $this->firstDayOfWeek(1); // Monday
         $this->suffixIcon('heroicon-m-calendar');
         $this->extraAttributes(['data-weekdays-short' => 'short'], true);
+        $this->timezone(EthiopicConfig::timezone());
 
-        $this->helperText(function (self $component, mixed $state): ?string {
+        $this->helperText(function (self $component, mixed $state) {
             if (! $component->ethiopicHelperEnabled) {
                 return null;
             }
 
-            return $component->formatStateForDisplay($state);
+            $display = $component->formatStateForDisplay($state);
+
+            if ($display === null) {
+                return null;
+            }
+
+            return new \Illuminate\Support\HtmlString(
+                $display . '<br><span class="text-xs text-gray-500" style="opacity: 0.8; font-size: 0.75rem;">Stored as: Gregorian (system standard)</span>'
+            );
         });
 
         $this->suffix(function (self $component, mixed $state): ?string {
@@ -91,7 +100,7 @@ class EthiopicDateTimePicker extends DateTimePicker
      */
     public function ethiopic(): static
     {
-        $this->displayMode(DisplayMode::AmharicNoWeek);
+        $this->displayMode(DisplayMode::EthiopicAmharic);
         $this->timeMode(TimeMode::Ethiopian);
 
         return $this;
@@ -175,6 +184,13 @@ class EthiopicDateTimePicker extends DateTimePicker
             return null;
         }
 
+        try {
+            $carbon = \Carbon\Carbon::parse($state, config('app.timezone'))->setTimezone(EthiopicConfig::timezone());
+            $stateToFormat = $this->hasTime() ? $carbon->format('Y-m-d H:i:s') : $carbon->format('Y-m-d');
+        } catch (\Throwable) {
+            $stateToFormat = trim((string) $state);
+        }
+
         $formatter = app(EthiopicFormatter::class);
 
         // Determine time mode for display
@@ -183,13 +199,13 @@ class EthiopicDateTimePicker extends DateTimePicker
         // If time is not enabled, format date only
         if (! $this->hasTime()) {
             return $formatter->formatDate(
-                trim(explode(' ', trim((string) $state))[0]),
+                trim(explode(' ', $stateToFormat)[0]),
                 $this->getDisplayMode(),
             );
         }
 
         return $formatter->formatDateTime(
-            trim((string) $state),
+            $stateToFormat,
             $this->getDisplayMode(),
             $timeMode,
         );

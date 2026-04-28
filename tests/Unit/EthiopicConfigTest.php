@@ -75,9 +75,9 @@ final class EthiopicConfigTest extends TestCase
 
     public function test_display_mode_from_simple_mode(): void
     {
-        self::assertSame(DisplayMode::AmharicNoWeek, DisplayMode::fromSimpleMode('ethiopic'));
-        self::assertSame(DisplayMode::CleanGregorian, DisplayMode::fromSimpleMode('gregorian'));
-        self::assertSame(DisplayMode::Hybrid, DisplayMode::fromSimpleMode('dual'));
+        self::assertSame(DisplayMode::EthiopicAmharic, DisplayMode::fromSimpleMode('ethiopic'));
+        self::assertSame(DisplayMode::Gregorian, DisplayMode::fromSimpleMode('gregorian'));
+        self::assertSame(DisplayMode::Dual, DisplayMode::fromSimpleMode('dual'));
     }
 
     public function test_display_mode_from_simple_mode_falls_back_to_enum_value(): void

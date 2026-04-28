@@ -16,6 +16,7 @@ class EthiopicDateColumn extends TextColumn
         parent::setUp();
 
         $this->icon('heroicon-m-calendar');
+        $this->default('—');
 
         $this->formatStateUsing(function (mixed $state): ?string {
             return $this->formatEthiopicState($state);

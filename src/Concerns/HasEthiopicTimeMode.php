@@ -29,6 +29,30 @@ trait HasEthiopicTimeMode
     }
 
     /**
+     * Configure component for Ethiopian time (6-hour shift).
+     */
+    public function ethiopianTime(): static
+    {
+        return $this->timeMode(TimeMode::Ethiopian);
+    }
+
+    /**
+     * Configure component for dual time (Gregorian + Ethiopian).
+     */
+    public function dualTime(): static
+    {
+        return $this->timeMode(TimeMode::Dual);
+    }
+
+    /**
+     * Configure component for standard Gregorian time.
+     */
+    public function gregorianTime(): static
+    {
+        return $this->timeMode(TimeMode::Gregorian);
+    }
+
+    /**
      * Get the resolved time mode.
      */
     public function getTimeMode(): TimeMode

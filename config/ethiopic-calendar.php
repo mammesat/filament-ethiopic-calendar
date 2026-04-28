@@ -11,16 +11,16 @@ return [
     | Controls how Ethiopic calendar values are displayed across the UX.
     |
     | Supported modes:
-    | - 'amharic_no_week': መስከረም 01, 2017 (Amharic, no weekday — default)
-    | - 'transliteration_no_week': Meskerem 01, 2017 (English transliteration, no weekday)
+    | - 'ethiopic_amharic': መስከረም 01, 2017 (Amharic, no weekday — default)
+    | - 'ethiopic_english': Meskerem 01, 2017 (English transliteration, no weekday)
     | - 'amharic_combined': መስከረም 01, 2017 / ሰኞ (Fully localized Amharic with weekday)
     | - 'transliteration_combined': Meskerem 01, 2017 / Monday (English with weekday)
-    | - 'clean_gregorian': 2024-09-11 (No Ethiopic labels, pure Gregorian format)
-    | - 'hybrid': Meskerem (መስከረም) 01, 2017 / Monday (ሰኞ) (Bilingual display)
+    | - 'gregorian': 2024-09-11 (No Ethiopic labels, pure Gregorian format)
+    | - 'dual': Meskerem (መስከረም) 01, 2017 / Monday (ሰኞ) (Bilingual display)
     | - 'compact_amharic': መስከረም 01, 2017 ሰኞ (Amharic only, compact spacing)
     |
     */
-    'display_mode' => 'amharic_no_week',
+    'display_mode' => 'ethiopic_amharic',
 
     /*
     |--------------------------------------------------------------------------

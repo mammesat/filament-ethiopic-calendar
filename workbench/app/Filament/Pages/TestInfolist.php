@@ -31,7 +31,7 @@ class TestInfolist extends Page implements HasForms, HasInfolists
     public function mount(): void
     {
         $this->form->fill([
-            'mode' => 'amharic_combined',
+            'mode' => 'ethiopic_amharic',
             'with_time' => false,
         ]);
     }
@@ -44,15 +44,12 @@ class TestInfolist extends Page implements HasForms, HasInfolists
                     ->components([
                         Select::make('mode')
                             ->options([
-                                'amharic_combined' => 'AmharicCombined',
-                                'transliteration_combined' => 'TransliterationCombined',
-                                'hybrid' => 'Hybrid',
-                                'compact_amharic' => 'CompactAmharic',
-                                'clean_gregorian' => 'CleanGregorian',
-                                'amharic_no_week' => 'AmharicNoWeek',
-                                'transliteration_no_week' => 'TransliterationNoWeek',
+                                'ethiopic_amharic' => 'Ethiopian (Amharic)',
+                                'ethiopic_english' => 'Ethiopian (English)',
+                                'gregorian' => 'Gregorian',
+                                'dual' => 'Dual (Ethiopian + Gregorian)',
                             ])
-                            ->default('amharic_combined')
+                            ->default('ethiopic_amharic')
                             ->live(),
                         Toggle::make('with_time')
                             ->label('Enable Ethiopian Time')
@@ -74,10 +71,10 @@ class TestInfolist extends Page implements HasForms, HasInfolists
 
     public function infolist(Schema $schema): Schema
     {
-        $mode = $this->formData['mode'] ?? 'amharic_combined';
+        $mode = $this->formData['mode'] ?? 'ethiopic_amharic';
         $withTime = $this->formData['with_time'] ?? false;
 
-        $resolvedMode = DisplayMode::tryFrom($mode) ?? DisplayMode::AmharicCombined;
+        $resolvedMode = DisplayMode::fromLegacy($mode) ?? DisplayMode::tryFrom($mode) ?? DisplayMode::EthiopicAmharic;
 
         return $schema
             ->components([

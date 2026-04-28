@@ -29,6 +29,22 @@ trait HasEthiopicDisplayMode
         return $this->displayMode($mode);
     }
 
+    /**
+     * Configure component for dual mode (Ethiopian + Gregorian).
+     */
+    public function dual(): static
+    {
+        return $this->displayMode(DisplayMode::Dual);
+    }
+
+    /**
+     * Configure component for pure Gregorian mode.
+     */
+    public function gregorian(): static
+    {
+        return $this->displayMode(DisplayMode::Gregorian);
+    }
+
     public function getDisplayMode(): DisplayMode
     {
         return $this->displayMode ?? DisplayMode::fromConfig();

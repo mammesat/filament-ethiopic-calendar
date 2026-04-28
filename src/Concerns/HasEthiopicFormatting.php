@@ -22,6 +22,18 @@ trait HasEthiopicFormatting
     protected ?bool $withTimeOverride = null;
 
     /**
+     * Convenience method: configure for full Ethiopian mode.
+     * Sets displayMode to ethiopic equivalent and timeMode to ethiopian.
+     */
+    public function ethiopic(): static
+    {
+        $this->displayMode(\Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::EthiopicAmharic);
+        $this->timeMode(\Mammesat\FilamentEthiopicCalendar\Enums\TimeMode::Ethiopian);
+
+        return $this;
+    }
+
+    /**
      * Enable or disable showing time.
      */
     public function withTime(bool $enabled = true): static
@@ -49,7 +61,7 @@ trait HasEthiopicFormatting
         }
 
         try {
-            $carbon = Carbon::parse($state);
+            $carbon = Carbon::parse($state, config('app.timezone'))->setTimezone(EthiopicConfig::timezone());
             $dateTimeString = $carbon->format('Y-m-d H:i:s');
             $dateString = $carbon->format('Y-m-d');
         } catch (\Throwable) {

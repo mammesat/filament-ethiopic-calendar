@@ -54,7 +54,9 @@ class TestDateResource extends Resource
 
                         static::applyRuntimeLocale($locale);
 
-                        $dateTime = Carbon::parse($state)->format($settings->with_time ? 'Y-m-d H:i:s' : 'Y-m-d');
+                        $dateTime = Carbon::parse($state, config('app.timezone'))
+                            ->setTimezone(\Mammesat\FilamentEthiopicCalendar\Support\EthiopicConfig::timezone())
+                            ->format($settings->with_time ? 'Y-m-d H:i:s' : 'Y-m-d');
 
                         $formatted = app(EthiopicFormatter::class)->formatDateTime(
                             $dateTime,
@@ -80,7 +82,9 @@ class TestDateResource extends Resource
                 Tables\Columns\TextColumn::make('birth_date')
                     ->label('Display Output')
                     ->formatStateUsing(function ($state) use ($settings): HtmlString {
-                        $dateTime = Carbon::parse($state)->format($settings->with_time ? 'Y-m-d H:i:s' : 'Y-m-d');
+                        $dateTime = Carbon::parse($state, config('app.timezone'))
+                            ->setTimezone(\Mammesat\FilamentEthiopicCalendar\Support\EthiopicConfig::timezone())
+                            ->format($settings->with_time ? 'Y-m-d H:i:s' : 'Y-m-d');
 
                         $formatted = app(EthiopicFormatter::class)->formatDateTime(
                             $dateTime,
@@ -97,15 +101,16 @@ class TestDateResource extends Resource
                     ->html()
                     ->wrap()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('birth_date')
+                Tables\Columns\TextColumn::make('gregorian_birth_date')
                     ->label('Stored Value (Gregorian)')
+                    ->getStateUsing(fn ($record) => $record->birth_date)
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->formatStateUsing(
                         fn ($state) => $settings->with_time
                             ? Carbon::parse($state)->format('M j, Y g:i A')
                             : Carbon::parse($state)->format('M j, Y')
                     )
-                    ->sortable(),
+                    ->sortable(query: fn (\Illuminate\Database\Eloquent\Builder $query, string $direction) => $query->orderBy('birth_date', $direction)),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()
@@ -130,11 +135,21 @@ class TestDateResource extends Resource
 
     private static function normalizeDisplayMode(?string $mode): string
     {
+        $resolved = \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::fromLegacy($mode ?? '') 
+            ?? \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::tryFrom($mode ?? '');
+
+        if ($resolved) {
+            return match ($resolved) {
+                \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::EthiopicAmharic, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::EthiopicEnglish, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::AmharicCombined, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::TransliterationCombined, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::CompactAmharic => 'ethiopic_amharic',
+                \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::Gregorian => 'gregorian',
+                \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::Dual => 'dual',
+            };
+        }
+
         return match ($mode) {
             'gregorian', 'clean_gregorian' => 'gregorian',
             'dual', 'hybrid' => 'dual',
-            'ethiopic', 'amharic_no_week', 'transliteration_no_week', 'amharic_combined', 'transliteration_combined', 'compact_amharic' => 'ethiopic',
-            default => 'ethiopic',
+            default => 'ethiopic_amharic',
         };
     }
 

@@ -138,12 +138,12 @@ final class EthiopicCalendar
 
         $locale = match ($mode) {
             DisplayMode::TransliterationCombined,
-            DisplayMode::TransliterationNoWeek,
-            DisplayMode::CleanGregorian => 'en',
+            DisplayMode::EthiopicEnglish,
+            DisplayMode::Gregorian => 'en',
             default => 'am',
         };
 
-        if ($mode === DisplayMode::Hybrid) {
+        if ($mode === DisplayMode::Dual) {
             $english = $this->formatter()->getMonthName($monthIndex, 'en');
             $amharic = $this->formatter()->getMonthName($monthIndex, 'am');
 
@@ -157,20 +157,20 @@ final class EthiopicCalendar
     {
         $mode = $this->resolveMode($mode);
 
-        if ($mode === DisplayMode::AmharicNoWeek || $mode === DisplayMode::TransliterationNoWeek) {
+        if ($mode === DisplayMode::EthiopicAmharic || $mode === DisplayMode::EthiopicEnglish) {
             return '';
         }
 
         $locale = match ($mode) {
             DisplayMode::TransliterationCombined,
-            DisplayMode::CleanGregorian => 'en',
+            DisplayMode::Gregorian => 'en',
             default => 'am',
         };
 
         // Normalize Carbon's 0 (Sunday) → 7
         $index = $dayIndex === 0 ? 7 : $dayIndex;
 
-        if ($mode === DisplayMode::Hybrid) {
+        if ($mode === DisplayMode::Dual) {
             $english = $this->formatter()->getDayName($index, 'long', 'en');
             $amharic = $this->formatter()->getDayName($index, 'long', 'am');
 

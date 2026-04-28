@@ -34,10 +34,10 @@ final class SettingsResolverTest extends TestCase
     public function test_field_override_takes_highest_priority(): void
     {
         // Even if EthiopicConfig has a runtime override set...
-        EthiopicConfig::set('display_mode', 'hybrid');
+        EthiopicConfig::set('display_mode', 'dual');
 
         // ...field override wins
-        $result = SettingsResolver::get('display_mode', 'amharic_no_week', [
+        $result = SettingsResolver::get('display_mode', 'ethiopic_amharic', [
             'display_mode' => 'compact_amharic',
         ]);
 

@@ -16,6 +16,7 @@ class EthiopicDateEntry extends TextEntry
         parent::setUp();
 
         $this->icon('heroicon-m-calendar');
+        $this->default('Not set');
 
         $this->formatStateUsing(function (mixed $state): ?string {
             return $this->formatEthiopicState($state);

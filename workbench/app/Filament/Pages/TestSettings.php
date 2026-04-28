@@ -55,7 +55,7 @@ class TestSettings extends Page implements HasForms
                         Select::make('display_mode')
                             ->label('Date Display')
                             ->options([
-                                'ethiopic' => 'Ethiopian',
+                                'ethiopic_amharic' => 'Ethiopian',
                                 'gregorian' => 'Gregorian',
                                 'dual' => 'Dual (Ethiopian + Gregorian)',
                             ])
@@ -124,7 +124,7 @@ class TestSettings extends Page implements HasForms
 
         $setting = TestSetting::current();
         $setting->update([
-            'display_mode' => $this->normalizeDisplayMode($data['display_mode'] ?? 'ethiopic'),
+            'display_mode' => $this->normalizeDisplayMode($data['display_mode'] ?? 'ethiopic_amharic'),
             'time_mode' => $this->normalizeTimeMode($data['time_mode'] ?? 'gregorian'),
             'calendar_locale' => in_array($data['calendar_locale'] ?? 'am', ['am', 'en'], true) ? $data['calendar_locale'] : 'am',
             'with_time' => (bool) ($data['with_time'] ?? false),
@@ -168,16 +168,26 @@ class TestSettings extends Page implements HasForms
 
     private function ethiopicDisplayModeForLocale(string $locale): string
     {
-        return $locale === 'en' ? 'transliteration_no_week' : 'amharic_no_week';
+        return $locale === 'en' ? 'ethiopic_english' : 'ethiopic_amharic';
     }
 
     private function normalizeDisplayMode(?string $mode): string
     {
+        $resolved = \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::fromLegacy($mode ?? '') 
+            ?? \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::tryFrom($mode ?? '');
+
+        if ($resolved) {
+            return match ($resolved) {
+                \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::EthiopicAmharic, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::EthiopicEnglish, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::AmharicCombined, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::TransliterationCombined, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::CompactAmharic => 'ethiopic_amharic',
+                \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::Gregorian => 'gregorian',
+                \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::Dual => 'dual',
+            };
+        }
+
         return match ($mode) {
             'gregorian', 'clean_gregorian' => 'gregorian',
             'dual', 'hybrid' => 'dual',
-            'ethiopic', 'amharic_no_week', 'transliteration_no_week', 'amharic_combined', 'transliteration_combined', 'compact_amharic' => 'ethiopic',
-            default => 'ethiopic',
+            default => 'ethiopic_amharic',
         };
     }
 

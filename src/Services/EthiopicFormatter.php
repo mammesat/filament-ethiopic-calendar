@@ -41,7 +41,7 @@ final class EthiopicFormatter
 
         $mode = $this->resolveDisplayMode($mode);
 
-        if ($mode === DisplayMode::CleanGregorian) {
+        if ($mode === DisplayMode::Gregorian) {
             try {
                 return Carbon::parse($gregorianDate)->format('M, j Y');
             } catch (\Throwable) {
@@ -72,14 +72,14 @@ final class EthiopicFormatter
             DisplayMode::AmharicCombined,
             DisplayMode::TransliterationCombined => "{$monthName} {$day}, {$year} / {$dayName}",
 
-            DisplayMode::Hybrid => "{$gregorianFormatted} ({$monthName} {$day}, {$year})",
+            DisplayMode::Dual => "{$gregorianFormatted} ({$monthName} {$day}, {$year})",
 
             DisplayMode::CompactAmharic => "{$monthName} {$day}, {$year} {$dayName}",
 
-            DisplayMode::AmharicNoWeek,
-            DisplayMode::TransliterationNoWeek => "{$monthName} {$day}, {$year}",
+            DisplayMode::EthiopicAmharic,
+            DisplayMode::EthiopicEnglish => "{$monthName} {$day}, {$year}",
 
-            DisplayMode::CleanGregorian => $gregorianDate,
+            DisplayMode::Gregorian => $gregorianDate,
         };
     }
 
@@ -276,7 +276,7 @@ final class EthiopicFormatter
 
     private function getFormattedDayName(int $dayIndex, DisplayMode $mode): string
     {
-        if ($mode === DisplayMode::AmharicNoWeek || $mode === DisplayMode::TransliterationNoWeek) {
+        if ($mode === DisplayMode::EthiopicAmharic || $mode === DisplayMode::EthiopicEnglish) {
             return '';
         }
 
@@ -293,13 +293,13 @@ final class EthiopicFormatter
         return match ($mode) {
             DisplayMode::AmharicCombined,
             DisplayMode::CompactAmharic,
-            DisplayMode::AmharicNoWeek => 'am',
+            DisplayMode::EthiopicAmharic => 'am',
 
             DisplayMode::TransliterationCombined,
-            DisplayMode::TransliterationNoWeek,
-            DisplayMode::CleanGregorian => 'en',
+            DisplayMode::EthiopicEnglish,
+            DisplayMode::Gregorian => 'en',
 
-            DisplayMode::Hybrid => EthiopicConfig::calendarLocale(),
+            DisplayMode::Dual => EthiopicConfig::calendarLocale(),
         };
     }
 
@@ -314,12 +314,12 @@ final class EthiopicFormatter
         }
 
         if (is_string($mode)) {
-            // Try the simple mode API first ('ethiopic', 'gregorian', 'dual')
-            if (in_array($mode, ['ethiopic', 'gregorian', 'dual'], true)) {
+            // Try the simple mode API first ('ethiopic', 'gregorian', 'dual', 'ethiopic_amharic', etc)
+            if (in_array($mode, ['ethiopic', 'gregorian', 'dual', 'ethiopic_amharic', 'ethiopic_english'], true)) {
                 return DisplayMode::fromSimpleMode($mode);
             }
 
-            return DisplayMode::tryFrom($mode) ?? DisplayMode::fromConfig();
+            return DisplayMode::fromLegacy($mode) ?? DisplayMode::tryFrom($mode) ?? DisplayMode::fromConfig();
         }
 
         return DisplayMode::fromConfig();

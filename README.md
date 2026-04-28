@@ -64,42 +64,40 @@ php artisan optimize:clear
 
 ---
 
-## Quick usage
+## Quick Start (< 60 seconds)
 
-### Form field
+### Form Field
 
 ```php
 use Mammesat\FilamentEthiopicCalendar\Fields\EthiopicDateTimePicker;
 
 EthiopicDateTimePicker::make('appointment_at')
     ->label('Appointment Date')
-    ->displayMode('dual')      // ethiopic | gregorian | dual
-    ->timeMode('dual')         // gregorian | ethiopian | dual
-    ->calendarLocale('am')     // am | en
-    ->withTime(true)
+    ->ethiopic()               // Sets to ethiopic_amharic & ethiopianTime
+    ->withTime()               // Enables time selector
     ->required();
 ```
 
-### Table column
+### Table Column
 
 ```php
 use Mammesat\FilamentEthiopicCalendar\Tables\Columns\EthiopicDateColumn;
 
 EthiopicDateColumn::make('appointment_at')
     ->label('Appointment')
-    ->displayMode('dual')
-    ->timeMode('dual')
+    ->dual()                   // Outputs dual dates
+    ->dualTime()               // Outputs dual time
     ->withTime();
 ```
 
-### Infolist entry
+### Infolist Entry
 
 ```php
 use Mammesat\FilamentEthiopicCalendar\Infolists\Components\EthiopicDateEntry;
 
 EthiopicDateEntry::make('appointment_at')
-    ->displayMode('ethiopic')
-    ->timeMode('ethiopian')
+    ->ethiopicDisplayMode('ethiopic_amharic') // Manual override if needed
+    ->ethiopianTime()
     ->withTime();
 ```
 
@@ -112,7 +110,7 @@ EthiopicDateEntry::make('appointment_at')
 ```php
 use Mammesat\FilamentEthiopicCalendar\Support\EthiopicFormatter;
 
-EthiopicFormatter::formatDate('2026-04-21', 'ethiopic');
+EthiopicFormatter::formatDate('2026-04-21', 'ethiopic_amharic');
 EthiopicFormatter::formatTime('10:00:00', 'dual');
 EthiopicFormatter::formatDateTime('2026-04-21 10:00:00', 'dual', 'dual');
 ```
@@ -151,6 +149,12 @@ Common options:
 - `timezone`
 
 Per-field overrides always win over global config.
+
+---
+
+## Backward Compatibility
+
+> **Note:** Legacy display mode values (e.g., `amharic_no_week`, `clean_gregorian`, `hybrid`) are still fully supported and automatically normalized at runtime across the platform. You do not need to forcibly migrate existing database records or settings.
 
 ---
 

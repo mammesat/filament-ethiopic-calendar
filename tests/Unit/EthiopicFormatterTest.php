@@ -77,16 +77,16 @@ final class EthiopicFormatterTest extends TestCase
     // formatDate() tests
     // ──────────────────────────────────────────────
 
-    public function test_format_date_amharic_no_week(): void
+    public function test_format_date_ethiopic_amharic(): void
     {
-        $result = $this->formatter->formatDate('2023-09-12', DisplayMode::AmharicNoWeek);
+        $result = $this->formatter->formatDate('2023-09-12', DisplayMode::EthiopicAmharic);
 
         self::assertSame('መስከረም 01, 2016', $result);
     }
 
-    public function test_format_date_transliteration_no_week(): void
+    public function test_format_date_ethiopic_english(): void
     {
-        $result = $this->formatter->formatDate('2023-09-12', DisplayMode::TransliterationNoWeek);
+        $result = $this->formatter->formatDate('2023-09-12', DisplayMode::EthiopicEnglish);
 
         self::assertSame('Meskerem 01, 2016', $result);
     }
@@ -110,9 +110,9 @@ final class EthiopicFormatterTest extends TestCase
         self::assertStringContainsString('2016', $result);
     }
 
-    public function test_format_date_hybrid(): void
+    public function test_format_date_dual(): void
     {
-        $result = $this->formatter->formatDate('2023-09-12', DisplayMode::Hybrid);
+        $result = $this->formatter->formatDate('2023-09-12', DisplayMode::Dual);
 
         self::assertNotNull($result);
         self::assertStringContainsString('Sep, 12 2023', $result);
@@ -130,9 +130,9 @@ final class EthiopicFormatterTest extends TestCase
         self::assertStringNotContainsString('/', $result);
     }
 
-    public function test_format_date_clean_gregorian(): void
+    public function test_format_date_gregorian(): void
     {
-        $result = $this->formatter->formatDate('2023-09-12', DisplayMode::CleanGregorian);
+        $result = $this->formatter->formatDate('2023-09-12', DisplayMode::Gregorian);
 
         self::assertSame('Sep, 12 2023', $result);
     }
@@ -203,7 +203,7 @@ final class EthiopicFormatterTest extends TestCase
     {
         $result = $this->formatter->formatDateTime(
             '2023-09-12 10:30:00',
-            DisplayMode::AmharicNoWeek,
+            DisplayMode::EthiopicAmharic,
             TimeMode::Gregorian,
         );
 
@@ -216,7 +216,7 @@ final class EthiopicFormatterTest extends TestCase
     {
         $result = $this->formatter->formatDateTime(
             '2023-09-12 10:30:00',
-            DisplayMode::AmharicNoWeek,
+            DisplayMode::EthiopicAmharic,
             TimeMode::Ethiopian,
         );
 
@@ -229,7 +229,7 @@ final class EthiopicFormatterTest extends TestCase
     {
         $result = $this->formatter->formatDateTime(
             '2023-09-12 10:30:00',
-            DisplayMode::AmharicNoWeek,
+            DisplayMode::EthiopicAmharic,
             TimeMode::Dual,
         );
 
@@ -243,7 +243,7 @@ final class EthiopicFormatterTest extends TestCase
     {
         $result = $this->formatter->formatDateTime(
             '2023-09-12',
-            DisplayMode::AmharicNoWeek,
+            DisplayMode::EthiopicAmharic,
             TimeMode::Ethiopian,
         );
 
@@ -342,7 +342,7 @@ final class EthiopicFormatterTest extends TestCase
     public function test_format_date_pagume_non_leap_year(): void
     {
         // 2023-09-06 → Pagume 1, 2015 (non-leap year, Pagume has 5 days)
-        $result = $this->formatter->formatDate('2023-09-06', DisplayMode::AmharicNoWeek);
+        $result = $this->formatter->formatDate('2023-09-06', DisplayMode::EthiopicAmharic);
 
         self::assertNotNull($result);
         self::assertStringContainsString('ጳጉሜ', $result);
@@ -353,7 +353,7 @@ final class EthiopicFormatterTest extends TestCase
     {
         // 2023-09-11 → Pagume 6, 2015 (leap year — Pagume has 6 days)
         // Actually 2015 EC is a leap year: (2015+1) % 4 === 0 → true
-        $result = $this->formatter->formatDate('2023-09-11', DisplayMode::AmharicNoWeek);
+        $result = $this->formatter->formatDate('2023-09-11', DisplayMode::EthiopicAmharic);
 
         self::assertNotNull($result);
         self::assertStringContainsString('ጳጉሜ', $result);
@@ -368,8 +368,8 @@ final class EthiopicFormatterTest extends TestCase
         $date = '2024-01-15';
 
         // Same date should always produce the same output
-        $result1 = $this->formatter->formatDate($date, DisplayMode::AmharicNoWeek);
-        $result2 = $this->formatter->formatDate($date, DisplayMode::AmharicNoWeek);
+        $result1 = $this->formatter->formatDate($date, DisplayMode::EthiopicAmharic);
+        $result2 = $this->formatter->formatDate($date, DisplayMode::EthiopicAmharic);
 
         self::assertSame($result1, $result2);
     }
@@ -384,6 +384,20 @@ final class EthiopicFormatterTest extends TestCase
             self::assertNotNull($result, "DisplayMode::{$mode->name} returned null for a valid date");
             self::assertNotEmpty($result, "DisplayMode::{$mode->name} returned empty for a valid date");
         }
+    }
+
+    public function test_from_legacy_resolves_old_keys_correctly(): void
+    {
+        self::assertSame(DisplayMode::EthiopicAmharic, DisplayMode::fromLegacy('amharic_no_week'));
+        self::assertSame(DisplayMode::EthiopicEnglish, DisplayMode::fromLegacy('transliteration_no_week'));
+        self::assertSame(DisplayMode::Gregorian, DisplayMode::fromLegacy('clean_gregorian'));
+        self::assertSame(DisplayMode::Dual, DisplayMode::fromLegacy('hybrid'));
+        
+        // Unmapped keys fall through to tryFrom
+        self::assertSame(DisplayMode::CompactAmharic, DisplayMode::fromLegacy('compact_amharic'));
+        
+        // Invalid keys return null
+        self::assertNull(DisplayMode::fromLegacy('invalid_key'));
     }
 }
 
