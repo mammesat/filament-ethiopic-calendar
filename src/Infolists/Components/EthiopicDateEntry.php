@@ -21,5 +21,9 @@ class EthiopicDateEntry extends TextEntry
         $this->formatStateUsing(function (mixed $state): ?string {
             return $this->formatEthiopicState($state);
         });
+
+        $this->tooltip(function (mixed $state): ?string {
+            return $this->getAlternateTooltip($state);
+        });
     }
 }

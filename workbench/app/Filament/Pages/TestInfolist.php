@@ -76,26 +76,36 @@ class TestInfolist extends Page implements HasForms, HasInfolists
         return $schema
             ->components([
                 Section::make('Infolist Test Scenarios')
-                    ->description('Testing EthiopicDateEntry across various configurations.')
+                    ->description('Testing EthiopicDateEntry across various configurations. Hover dates to see alternate calendar tooltip.')
                     ->components([
                         EthiopicDateEntry::make('birth_date')
                             ->label('Basic Date Display')
                             ->displayMode($mode)
-                            ->withTime(false),
+                            ->withTime(false)
+                            ->tooltipAlternate(),
 
                         EthiopicDateEntry::make('appointment_datetime')
                             ->label('DateTime Display (with_time)')
                             ->displayMode($mode)
                             ->withTime($withTime)
-                            ->timeMode($withTime ? 'ethiopian' : 'gregorian'),
+                            ->timeMode($withTime ? 'ethiopian' : 'gregorian')
+                            ->tooltipAlternate(),
+
+                        EthiopicDateEntry::make('birth_date')
+                            ->label('Gregorian Mode (hover for Ethiopic)')
+                            ->gregorian()
+                            ->withTime($withTime)
+                            ->tooltipAlternate(),
 
                         EthiopicDateEntry::make('pagume_date')
                             ->label('Edge Case: Pagume Test')
-                            ->displayMode($mode),
+                            ->displayMode($mode)
+                            ->tooltipAlternate(),
 
                         EthiopicDateEntry::make('null_date')
                             ->label('Edge Case: Null Date')
-                            ->displayMode($mode),
+                            ->displayMode($mode)
+                            ->tooltipAlternate(),
                     ])
             ])->state($this->getTestRecord());
     }

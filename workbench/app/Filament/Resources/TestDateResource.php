@@ -55,6 +55,13 @@ class TestDateResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable(),
+                \Mammesat\FilamentEthiopicCalendar\Tables\Columns\EthiopicDateColumn::make('birth_date_ethiopic')
+                    ->label('Ethiopian (Hover for Greg)')
+                    ->getStateUsing(fn ($record) => $record->birth_date)
+                    ->displayMode($settings->display_mode)
+                    ->timeMode($settings->time_mode)
+                    ->tooltipAlternate()
+                    ->sortable(query: fn (\Illuminate\Database\Eloquent\Builder $query, string $direction) => $query->orderBy('birth_date', $direction)),
                 Tables\Columns\TextColumn::make('birth_date')
                     ->label('Display Output')
                     ->formatStateUsing(function ($state) use ($settings): HtmlString {

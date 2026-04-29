@@ -101,6 +101,36 @@ All three share the same API. Use `->ethiopic()`, `->dual()`, or `->gregorian()`
 
 ---
 
+## ✨ Interactive Tooltips
+
+Instantly provide context without cluttering your UI. Enable a hover tooltip that shows the "opposite" calendar system.
+
+- **Displaying Gregorian?** Hover to see **Ethiopic date + Ethiopian time**.
+- **Displaying Ethiopic?** Hover to see **Gregorian equivalent**.
+
+Available on `EthiopicDateColumn` and `EthiopicDateEntry`.
+
+```php
+use Mammesat\FilamentEthiopicCalendar\Tables\Columns\EthiopicDateColumn;
+
+EthiopicDateColumn::make('created_at')
+    ->ethiopic()
+    ->tooltipAlternate(); // Hover shows Greg equivalent
+```
+
+```php
+use Mammesat\FilamentEthiopicCalendar\Infolists\Components\EthiopicDateEntry;
+
+EthiopicDateEntry::make('birth_date')
+    ->gregorian()
+    ->tooltipAlternate(); // Hover shows Ethiopic equivalent
+```
+
+> [!NOTE]
+> Tooltips are automatically disabled in `dual()` mode since both calendar systems are already visible.
+
+---
+
 ## ⚙️ Optional Customization
 
 Most users only need `->ethiopic()`. But if you need more control:
@@ -214,7 +244,7 @@ EthiopicDateTimePicker::make('date')
 For use outside Filament components (e.g., Blade views, exports, notifications):
 
 ```php
-use Mammesat\FilamentEthiopicCalendar\Support\EthiopicFormatter;
+use Mammesat\FilamentEthiopicCalendar\Services\EthiopicFormatter;
 
 // Date only
 EthiopicFormatter::formatDate('2026-04-21', 'ethiopic_amharic');

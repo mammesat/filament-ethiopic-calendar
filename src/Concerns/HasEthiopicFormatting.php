@@ -23,6 +23,8 @@ trait HasEthiopicFormatting
 
     protected ?bool $withTimeOverride = null;
 
+    protected bool $tooltipAlternateEnabled = false;
+
     /**
      * Convenience preset: full Ethiopian mode.
      */
@@ -69,6 +71,67 @@ trait HasEthiopicFormatting
     public function hasTime(): bool
     {
         return $this->withTimeOverride ?? EthiopicConfig::withTime();
+    }
+
+    /**
+     * Enable the alternate-calendar tooltip.
+     *
+     * When the displayed date is Ethiopic → tooltip shows Gregorian.
+     * When the displayed date is Gregorian → tooltip shows Ethiopic.
+     * When in Dual mode → tooltip is disabled (both already visible).
+     */
+    public function tooltipAlternate(bool $enabled = true): static
+    {
+        $this->tooltipAlternateEnabled = $enabled;
+
+        return $this;
+    }
+
+    /**
+     * Compute the alternate-calendar tooltip for the given raw state.
+     *
+     * Flips the display/time modes so the user sees the "other" calendar
+     * on hover, without duplicating any formatting logic.
+     */
+    protected function getAlternateTooltip(mixed $state): ?string
+    {
+        if (! $this->tooltipAlternateEnabled || $state === null) {
+            return null;
+        }
+
+        $currentDisplay = $this->getDisplayMode();
+
+        // Dual already shows both — no tooltip needed.
+        if ($currentDisplay === DisplayMode::Dual) {
+            return null;
+        }
+
+        try {
+            $carbon = Carbon::parse($state, config('app.timezone'))
+                ->setTimezone(EthiopicConfig::timezone());
+            $dateTimeString = $carbon->format('Y-m-d H:i:s');
+            $dateString = $carbon->format('Y-m-d');
+        } catch (\Throwable) {
+            return null;
+        }
+
+        // Determine the opposite display + time modes.
+        if ($currentDisplay === DisplayMode::Gregorian) {
+            $altDisplay = DisplayMode::EthiopicAmharic;
+            $altTime = TimeMode::Ethiopian;
+        } else {
+            // Any Ethiopic variant → flip to Gregorian
+            $altDisplay = DisplayMode::Gregorian;
+            $altTime = TimeMode::Gregorian;
+        }
+
+        $formatter = app(EthiopicFormatter::class);
+
+        if (! $this->hasTime()) {
+            return $formatter->formatDate($dateString, $altDisplay);
+        }
+
+        return $formatter->formatDateTime($dateTimeString, $altDisplay, $altTime);
     }
 
     /**
