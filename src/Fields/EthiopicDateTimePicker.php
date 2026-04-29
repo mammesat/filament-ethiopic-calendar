@@ -94,16 +94,48 @@ class EthiopicDateTimePicker extends DateTimePicker
     // ──────────────────────────────────────────────
 
     /**
-     * Convenience method: configure for full Ethiopian mode.
+     * Convenience preset: full Ethiopian mode.
      *
-     * Sets displayMode to 'ethiopic' and timeMode to 'ethiopian'.
+     * Sets displayMode to ethiopic_amharic, timeMode to ethiopian,
+     * and calendar locale to Amharic. One-liner for the most common config.
      */
     public function ethiopic(): static
     {
-        $this->displayMode(DisplayMode::EthiopicAmharic);
-        $this->timeMode(TimeMode::Ethiopian);
+        return $this
+            ->displayMode(DisplayMode::EthiopicAmharic)
+            ->timeMode(TimeMode::Ethiopian)
+            ->calendarLocale('am');
+    }
 
-        return $this;
+    /**
+     * Convenience preset: dual mode (Ethiopian + Gregorian side by side).
+     */
+    public function dual(): static
+    {
+        return $this
+            ->displayMode(DisplayMode::Dual)
+            ->timeMode(TimeMode::Dual);
+    }
+
+    /**
+     * Convenience preset: pure Gregorian mode.
+     */
+    public function gregorian(): static
+    {
+        return $this
+            ->displayMode(DisplayMode::Gregorian)
+            ->timeMode(TimeMode::Gregorian);
+    }
+
+    /**
+     * Get the formatted Ethiopic preview for a given state value.
+     *
+     * Use this in helperText closures instead of manually calling EthiopicFormatter:
+     *   ->helperText(fn ($state, $component) => $component->getFormattedPreview($state))
+     */
+    public function getFormattedPreview(mixed $state): ?string
+    {
+        return $this->formatStateForDisplay($state);
     }
 
     /**

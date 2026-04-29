@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Mammesat\FilamentEthiopicCalendar\Concerns;
 
 use Carbon\Carbon;
+use Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode;
+use Mammesat\FilamentEthiopicCalendar\Enums\TimeMode;
 use Mammesat\FilamentEthiopicCalendar\Services\EthiopicFormatter;
 use Mammesat\FilamentEthiopicCalendar\Support\EthiopicConfig;
 
@@ -22,15 +24,33 @@ trait HasEthiopicFormatting
     protected ?bool $withTimeOverride = null;
 
     /**
-     * Convenience method: configure for full Ethiopian mode.
-     * Sets displayMode to ethiopic equivalent and timeMode to ethiopian.
+     * Convenience preset: full Ethiopian mode.
      */
     public function ethiopic(): static
     {
-        $this->displayMode(\Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::EthiopicAmharic);
-        $this->timeMode(\Mammesat\FilamentEthiopicCalendar\Enums\TimeMode::Ethiopian);
+        return $this
+            ->displayMode(DisplayMode::EthiopicAmharic)
+            ->timeMode(TimeMode::Ethiopian);
+    }
 
-        return $this;
+    /**
+     * Convenience preset: dual mode (Ethiopian + Gregorian).
+     */
+    public function dual(): static
+    {
+        return $this
+            ->displayMode(DisplayMode::Dual)
+            ->timeMode(TimeMode::Dual);
+    }
+
+    /**
+     * Convenience preset: pure Gregorian mode.
+     */
+    public function gregorian(): static
+    {
+        return $this
+            ->displayMode(DisplayMode::Gregorian)
+            ->timeMode(TimeMode::Gregorian);
     }
 
     /**

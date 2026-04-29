@@ -37,8 +37,8 @@ class TestSettings extends Page implements HasForms
         $setting = TestSetting::current();
 
         $this->getForm('form')->fill([
-            'display_mode' => $this->normalizeDisplayMode($setting->display_mode),
-            'time_mode' => $this->normalizeTimeMode($setting->time_mode),
+            'display_mode' => $setting->display_mode ?? 'ethiopic_amharic',
+            'time_mode' => $setting->time_mode ?? 'gregorian',
             'calendar_locale' => in_array($setting->calendar_locale, ['am', 'en'], true) ? $setting->calendar_locale : 'am',
             'with_time' => (bool) $setting->with_time,
         ]);
@@ -124,8 +124,8 @@ class TestSettings extends Page implements HasForms
 
         $setting = TestSetting::current();
         $setting->update([
-            'display_mode' => $this->normalizeDisplayMode($data['display_mode'] ?? 'ethiopic_amharic'),
-            'time_mode' => $this->normalizeTimeMode($data['time_mode'] ?? 'gregorian'),
+            'display_mode' => $data['display_mode'] ?? 'ethiopic_amharic',
+            'time_mode' => $data['time_mode'] ?? 'gregorian',
             'calendar_locale' => in_array($data['calendar_locale'] ?? 'am', ['am', 'en'], true) ? $data['calendar_locale'] : 'am',
             'with_time' => (bool) ($data['with_time'] ?? false),
         ]);
@@ -139,8 +139,8 @@ class TestSettings extends Page implements HasForms
 
     private function buildPreviewData(callable $get): array
     {
-        $displayMode = $this->normalizeDisplayMode((string) $get('display_mode'));
-        $timeMode = $this->normalizeTimeMode((string) $get('time_mode'));
+        $displayMode = (string) ($get('display_mode') ?? 'ethiopic_amharic');
+        $timeMode = (string) ($get('time_mode') ?? 'gregorian');
         $locale = in_array($get('calendar_locale'), ['am', 'en'], true) ? $get('calendar_locale') : 'am';
         $withTime = (bool) $get('with_time');
 
@@ -150,9 +150,11 @@ class TestSettings extends Page implements HasForms
 
         $previewDateTime = $withTime ? '2026-04-21 10:00:00' : '2026-04-21';
 
+        $ethiopicMode = $locale === 'en' ? 'ethiopic_english' : 'ethiopic_amharic';
+
         $lines = [
             'gregorian' => $formatter->formatDateTime($previewDateTime, 'gregorian', $timeMode),
-            'ethiopian' => $formatter->formatDateTime($previewDateTime, $this->ethiopicDisplayModeForLocale($locale), $timeMode),
+            'ethiopian' => $formatter->formatDateTime($previewDateTime, $ethiopicMode, $timeMode),
             'dual' => $formatter->formatDateTime($previewDateTime, 'dual', $timeMode),
         ];
 
@@ -164,35 +166,5 @@ class TestSettings extends Page implements HasForms
             'lines' => $lines,
             'activeLine' => $lines[$displayMode] ?? null,
         ];
-    }
-
-    private function ethiopicDisplayModeForLocale(string $locale): string
-    {
-        return $locale === 'en' ? 'ethiopic_english' : 'ethiopic_amharic';
-    }
-
-    private function normalizeDisplayMode(?string $mode): string
-    {
-        $resolved = \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::fromLegacy($mode ?? '') 
-            ?? \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::tryFrom($mode ?? '');
-
-        if ($resolved) {
-            return match ($resolved) {
-                \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::EthiopicAmharic, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::EthiopicEnglish, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::AmharicCombined, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::TransliterationCombined, \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::CompactAmharic => 'ethiopic_amharic',
-                \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::Gregorian => 'gregorian',
-                \Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode::Dual => 'dual',
-            };
-        }
-
-        return match ($mode) {
-            'gregorian', 'clean_gregorian' => 'gregorian',
-            'dual', 'hybrid' => 'dual',
-            default => 'ethiopic_amharic',
-        };
-    }
-
-    private function normalizeTimeMode(?string $mode): string
-    {
-        return in_array($mode, ['gregorian', 'ethiopian', 'dual'], true) ? $mode : 'gregorian';
     }
 }

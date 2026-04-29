@@ -11,7 +11,6 @@ use Filament\Infolists\Contracts\HasInfolists;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode;
 use Mammesat\FilamentEthiopicCalendar\Infolists\Components\EthiopicDateEntry;
 
 class TestInfolist extends Page implements HasForms, HasInfolists
@@ -74,8 +73,6 @@ class TestInfolist extends Page implements HasForms, HasInfolists
         $mode = $this->formData['mode'] ?? 'ethiopic_amharic';
         $withTime = $this->formData['with_time'] ?? false;
 
-        $resolvedMode = DisplayMode::fromLegacy($mode) ?? DisplayMode::tryFrom($mode) ?? DisplayMode::EthiopicAmharic;
-
         return $schema
             ->components([
                 Section::make('Infolist Test Scenarios')
@@ -83,22 +80,22 @@ class TestInfolist extends Page implements HasForms, HasInfolists
                     ->components([
                         EthiopicDateEntry::make('birth_date')
                             ->label('Basic Date Display')
-                            ->displayMode($resolvedMode)
+                            ->displayMode($mode)
                             ->withTime(false),
 
                         EthiopicDateEntry::make('appointment_datetime')
                             ->label('DateTime Display (with_time)')
-                            ->displayMode($resolvedMode)
+                            ->displayMode($mode)
                             ->withTime($withTime)
                             ->timeMode($withTime ? 'ethiopian' : 'gregorian'),
 
                         EthiopicDateEntry::make('pagume_date')
                             ->label('Edge Case: Pagume Test')
-                            ->displayMode($resolvedMode),
+                            ->displayMode($mode),
 
                         EthiopicDateEntry::make('null_date')
                             ->label('Edge Case: Null Date')
-                            ->displayMode($resolvedMode),
+                            ->displayMode($mode),
                     ])
             ])->state($this->getTestRecord());
     }
