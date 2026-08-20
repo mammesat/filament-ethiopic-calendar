@@ -30,7 +30,11 @@ enum DisplayMode: string
         };
 
         if ($mapped !== null) {
-            $isProduction = function_exists('app') && method_exists(app(), 'isProduction') && app()->isProduction();
+                        try {
+                $isProduction = function_exists('app') && app()->bound('env') && app()->isProduction();
+            } catch (\Throwable) {
+                $isProduction = false;
+            }
 
             if (! $isProduction) {
                 @trigger_error("Legacy display mode key '{$value}' is deprecated and will be removed in a future release. Use '{$mapped->value}' instead.", E_USER_DEPRECATED);
@@ -112,3 +116,4 @@ enum DisplayMode: string
         };
     }
 }
+

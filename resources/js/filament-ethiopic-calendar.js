@@ -114,11 +114,9 @@ export default function filamentEthiopicCalendarComponent({
       // bypassing the calendarSystems plugin's .month()/.year()/.date()
       // setters which can overflow for Pagume (5-6 day month).
       let greg = toGregorian([year, month + 1, day]);
-      console.log('[buildEthiopicDate] ET('+year+','+month+','+day+') → Greg('+greg[0]+','+greg[1]+','+greg[2]+')');
       let result = dayjs(new Date(greg[0], greg[1] - 1, greg[2]))
           .tz(l, true)
           .toCalendarSystem("ethiopic");
-      console.log('[buildEthiopicDate] Result: Y='+result.year()+' M='+result.month()+' D='+result.date());
       return result;
     },
     focusedDate: null,
