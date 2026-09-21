@@ -102,7 +102,9 @@ export default function filamentEthiopicCalendarComponent({
   state: f,
   months: m,
   dayLabel: $,
-  dayShortLabel: v
+  dayShortLabel: v,
+  hasTime: wt = false,
+  displayMode: dm = "ethiopic_english"
 }) {
   let l = dayjs.tz.guess();
   return {
@@ -140,6 +142,8 @@ export default function filamentEthiopicCalendarComponent({
       this.minute = o?.minute() ?? 0;
       this.second = o?.second() ?? 0;
       this.setDisplayText();
+      this.updateHelperPreview();
+      this.$nextTick(() => this.updateHelperPreview());
       this.setMonths();
       this.setDayLabels();
       a && this.$nextTick(() => this.togglePanelVisibility(this.$refs.button));
@@ -220,6 +224,7 @@ export default function filamentEthiopicCalendarComponent({
         let n = r?.second() ?? 0;
         this.second !== n && (this.second = n);
         this.setDisplayText();
+        this.updateHelperPreview();
       });
     },
     clearState: function () {
@@ -228,6 +233,7 @@ export default function filamentEthiopicCalendarComponent({
       this.hour = 0;
       this.minute = 0;
       this.second = 0;
+      this.updateHelperPreview();
       this.$nextTick(() => this.isClearingState = !1);
     },
     dateIsDisabled: function (o) {
@@ -330,9 +336,49 @@ export default function filamentEthiopicCalendarComponent({
       if (o === null) {
         this.state = null;
         this.setDisplayText();
+        this.updateHelperPreview();
         return;
       }
-      this.dateIsDisabled(o) || (this.state = o.hour(this.hour ?? 0).minute(this.minute ?? 0).second(this.second ?? 0).toCalendarSystem("gregory").format("YYYY-MM-DD HH:mm:ss"), this.setDisplayText());
+      this.dateIsDisabled(o) || (this.state = o.hour(this.hour ?? 0).minute(this.minute ?? 0).second(this.second ?? 0).toCalendarSystem("gregory").format("YYYY-MM-DD HH:mm:ss"), this.setDisplayText(), this.updateHelperPreview());
+    },
+    getHelperPreviewEl: function () {
+      let wrapper = this.$el?.closest?.('[data-field-wrapper], .fi-fo-field, .fi-sc-field, .fi-fo-field-wrp, .fi-ta-filter');
+      if (wrapper) {
+        let preview = wrapper.querySelector('.fi-ethiopic-gregorian-preview');
+        if (preview) return preview;
+      }
+      let parent = this.$el?.parentElement;
+      for (let i = 0; i < 6 && parent; i++) {
+        let preview = parent.querySelector('.fi-ethiopic-gregorian-preview');
+        if (preview) return preview;
+        parent = parent.parentElement;
+      }
+      return null;
+    },
+    updateHelperPreview: function () {
+      let previewEl = this.getHelperPreviewEl();
+      if (!previewEl) return;
+      let container = previewEl.closest('.fi-ethiopic-helper-container');
+
+      if (!this.state) {
+        previewEl.textContent = '';
+        if (container) container.style.display = 'none';
+        return;
+      }
+
+      if (container) container.style.display = '';
+
+      if (dm !== 'gregorian') {
+        let greg = dayjs(this.state).toCalendarSystem("gregory");
+        if (!greg.isValid()) return;
+        let format = wt ? 'MMM DD, YYYY hh:mm A' : 'MMM DD, YYYY';
+        previewEl.textContent = greg.locale('en').format(format);
+      } else {
+        let eth = dayjs(this.state).toCalendarSystem("ethiopic");
+        if (!eth.isValid()) return;
+        let format = wt ? 'MMM DD, YYYY hh:mm A' : 'MMM DD, YYYY';
+        previewEl.textContent = eth.format(format);
+      }
     },
     isOpen: function () {
       return this.$refs.panel?.style.display === "block";

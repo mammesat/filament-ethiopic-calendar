@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mammesat\FilamentEthiopicCalendar\Support;
 
+use Mammesat\FilamentEthiopicCalendar\Enums\CalendarSystem;
 use Mammesat\FilamentEthiopicCalendar\Enums\DisplayMode;
 use Mammesat\FilamentEthiopicCalendar\Enums\TimeMode;
 
@@ -65,19 +66,59 @@ final class EthiopicConfig
     // Typed accessors
     // ──────────────────────────────────────────────
 
+    /**
+     * Resolve the display mode — the single source every component, the
+     * formatter and the calendar service read (via DisplayMode::fromConfig()).
+     *
+     * Like calendar_system, the value may be a DisplayMode, a string (current
+     * or legacy key), or a Closure returning either, so apps can follow the
+     * current tenant:
+     *   EthiopicConfig::set('display_mode', fn () => $tenant->usesGregorian() ? 'gregorian' : 'ethiopic_english');
+     */
     public static function displayMode(): DisplayMode
     {
         $value = self::resolve('display_mode');
+
+        if ($value instanceof \Closure) {
+            try {
+                $value = $value();
+            } catch (\Throwable) {
+                $value = null;
+            }
+        }
 
         if ($value instanceof DisplayMode) {
             return $value;
         }
 
         if (is_string($value)) {
-            return DisplayMode::tryFrom($value) ?? DisplayMode::fromLocale();
+            return DisplayMode::fromLegacy($value) ?? DisplayMode::fromLocale();
         }
 
         return DisplayMode::fromLocale();
+    }
+
+    /**
+     * Resolve the picker calendar system.
+     *
+     * The value may be a CalendarSystem, a string, or a Closure returning either,
+     * so apps can resolve it lazily per request (e.g. from the current tenant):
+     *   EthiopicConfig::set('calendar_system', fn () => $tenant->usesGregorian() ? 'gregorian' : 'ethiopic');
+     */
+    public static function calendarSystem(): CalendarSystem
+    {
+        $value = self::resolve('calendar_system');
+
+        if ($value instanceof \Closure) {
+            try {
+                $value = $value();
+            } catch (\Throwable) {
+                $value = null;
+            }
+        }
+
+        return CalendarSystem::fromValue(is_string($value) || $value instanceof CalendarSystem ? $value : null)
+            ?? CalendarSystem::Ethiopic;
     }
 
     public static function timeMode(): TimeMode

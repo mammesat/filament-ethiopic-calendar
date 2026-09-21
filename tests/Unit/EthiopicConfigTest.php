@@ -92,4 +92,41 @@ final class EthiopicConfigTest extends TestCase
     {
         self::assertSame(':gregorian (:ethiopian)', EthiopicConfig::resolve('dual_time_format', ':gregorian (:ethiopian)'));
     }
+
+    public function test_display_mode_runtime_override_reaches_from_config(): void
+    {
+        // Components, the formatter and the calendar service all resolve
+        // through DisplayMode::fromConfig(); it must honour a runtime override.
+        EthiopicConfig::set('display_mode', DisplayMode::Gregorian);
+
+        self::assertSame(DisplayMode::Gregorian, DisplayMode::fromConfig());
+    }
+
+    public function test_display_mode_accepts_a_closure_resolved_per_call(): void
+    {
+        $tenantUsesGregorian = false;
+        EthiopicConfig::set('display_mode', function () use (&$tenantUsesGregorian): string {
+            return $tenantUsesGregorian ? 'gregorian' : 'ethiopic_english';
+        });
+
+        self::assertSame(DisplayMode::EthiopicEnglish, DisplayMode::fromConfig());
+
+        $tenantUsesGregorian = true;
+
+        self::assertSame(DisplayMode::Gregorian, DisplayMode::fromConfig());
+    }
+
+    public function test_display_mode_closure_that_throws_falls_back_to_locale(): void
+    {
+        EthiopicConfig::set('display_mode', fn () => throw new \RuntimeException('no tenant'));
+
+        self::assertSame(DisplayMode::fromLocale(), EthiopicConfig::displayMode());
+    }
+
+    public function test_display_mode_still_maps_legacy_keys(): void
+    {
+        EthiopicConfig::set('display_mode', 'clean_gregorian');
+
+        self::assertSame(DisplayMode::Gregorian, @EthiopicConfig::displayMode());
+    }
 }

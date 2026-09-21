@@ -43,7 +43,7 @@ final class EthiopicFormatter
 
         if ($mode === DisplayMode::Gregorian) {
             try {
-                return Carbon::parse($gregorianDate)->format('M, j Y');
+                return Carbon::parse($gregorianDate)->format('M d, Y');
             } catch (\Throwable) {
                 return $gregorianDate;
             }
@@ -63,7 +63,7 @@ final class EthiopicFormatter
         $dayName = $this->getFormattedDayName($dayOfWeek, $mode);
 
         try {
-            $gregorianFormatted = Carbon::parse($gregorianDate)->format('M, j Y');
+            $gregorianFormatted = Carbon::parse($gregorianDate)->format('M d, Y');
         } catch (\Throwable) {
             $gregorianFormatted = $gregorianDate;
         }

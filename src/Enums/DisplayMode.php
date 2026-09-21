@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Mammesat\FilamentEthiopicCalendar\Enums;
 
+use Mammesat\FilamentEthiopicCalendar\Support\EthiopicConfig;
+
 enum DisplayMode: string
 {
     case EthiopicAmharic = 'ethiopic_amharic';
@@ -62,25 +64,16 @@ enum DisplayMode: string
     }
 
     /**
-     * Resolve display mode from config, falling back to locale.
+     * Resolve the configured display mode, falling back to locale.
+     *
+     * Delegates to EthiopicConfig so runtime overrides — including a Closure
+     * resolved per request — reach every component and the formatter. This
+     * used to read config() directly, so EthiopicConfig::set('display_mode')
+     * was silently ignored everywhere it mattered, unlike calendar_system.
      */
     public static function fromConfig(): self
     {
-        try {
-            $value = function_exists('config') ? config('ethiopic-calendar.display_mode') : null;
-        } catch (\Throwable) {
-            $value = null;
-        }
-
-        if ($value !== null) {
-            $resolved = self::fromLegacy($value);
-
-            if ($resolved !== null) {
-                return $resolved;
-            }
-        }
-
-        return self::fromLocale();
+        return EthiopicConfig::displayMode();
     }
 
     /**

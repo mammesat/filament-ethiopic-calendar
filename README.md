@@ -192,13 +192,31 @@ php artisan vendor:publish --tag="filament-ethiopic-calendar-config"
 
 This publishes `config/ethiopic-calendar.php` where you can set:
 
-- `display_mode` — default display mode (`ethiopic_amharic`, `gregorian`, `dual`)
+- `display_mode` — default display mode (`ethiopic_amharic`, `ethiopic_english`, `gregorian`, `dual`)
+- `calendar_system` — which picker grid to render (`ethiopic`, `gregorian`)
 - `time_mode` — default time system (`gregorian`, `ethiopian`, `dual`)
 - `calendar_locale` — default popup language (`am`, `en`)
 - `with_time` — enable time globally (`true` / `false`)
 - `timezone` — defaults to `Africa/Addis_Ababa`
 
 Per-field settings (e.g., `->ethiopic()`) always override global config.
+
+### Per-tenant calendars (multi-tenant apps)
+
+`calendar_system` and `display_mode` can both be resolved **per request** with
+a closure, so each tenant sees its own calendar. Register them once, for
+example in a service provider:
+
+```php
+use Mammesat\FilamentEthiopicCalendar\Support\EthiopicConfig;
+
+EthiopicConfig::set('calendar_system', fn () => tenant()->usesGregorian() ? 'gregorian' : 'ethiopic');
+EthiopicConfig::set('display_mode',    fn () => tenant()->usesGregorian() ? 'gregorian' : 'ethiopic_english');
+```
+
+`calendar_system` switches the date picker; `display_mode` switches every
+column, entry and formatter call that has no explicit mode. Stored values are
+always Gregorian, whichever calendar is displayed.
 
 ---
 

@@ -24,6 +24,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Calendar System
+    |--------------------------------------------------------------------------
+    |
+    | Which calendar grid the date picker popup renders.
+    |
+    | - 'ethiopic':  13-month Ethiopic calendar (default)
+    | - 'gregorian': Filament's default Gregorian date picker, untouched
+    |
+    | Stored values are always Gregorian regardless of this setting.
+    | Override per field with ->calendarSystem() / ->gregorianCalendar(),
+    | or at runtime with EthiopicConfig::set('calendar_system', fn () => ...).
+    |
+    */
+    'calendar_system' => 'ethiopic',
+
+    /*
+    |--------------------------------------------------------------------------
     | Locale
     |--------------------------------------------------------------------------
     |

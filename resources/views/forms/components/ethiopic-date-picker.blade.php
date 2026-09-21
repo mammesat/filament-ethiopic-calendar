@@ -89,7 +89,9 @@
                             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
                             months: @js($months),
                             dayLabel: @js($dayLabels),
-                            dayShortLabel: @js($dayShortLabels)
+                            dayShortLabel: @js($dayShortLabels),
+                            hasTime: @js($hasTime),
+                            displayMode: @js($getDisplayMode()->value)
                         })"
                 x-on:keydown.esc="isOpen() && $event.stopPropagation()"
                 {{

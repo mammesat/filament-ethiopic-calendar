@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-09-22
+
+### Added
+- **Calendar system switch** for `EthiopicDateTimePicker`: `->calendarSystem()`, `->gregorianCalendar()` and `->ethiopicCalendar()`, plus the `CalendarSystem` enum. In Gregorian mode the field renders Filament's built-in date picker untouched; stored values stay Gregorian either way.
+- `calendar_system` config key (`ethiopic` | `gregorian`), resolvable at runtime with `EthiopicConfig::set('calendar_system', fn () => ...)` so multi-tenant apps can follow each tenant's calendar.
+- `display_mode` now also accepts a **Closure** resolved per call, matching `calendar_system`.
+
+### Fixed
+- `EthiopicConfig::set('display_mode', …)` was ignored by components, the formatter and the calendar service: `DisplayMode::fromConfig()` read `config()` directly. It now resolves through `EthiopicConfig`, so runtime overrides reach everything.
+- `EthiopicConfig::displayMode()` now maps legacy keys (e.g. `clean_gregorian`) instead of falling back to the locale.
+- Gregorian dates formatted as `Dec, 31 2026`; they now read `Dec 31, 2026`.
+- The Ethiopic helper text is hidden by default for Gregorian pickers.
+
 ## [2.0.0] - 2026-08-20
 
 ### Added
