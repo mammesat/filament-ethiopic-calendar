@@ -194,9 +194,15 @@
                             </template>
                         </div>
 
+                        {{--
+                            Days are placed straight in this grid, so it sets its own 7 columns.
+                            Filament 5.11 dropped grid-cols-7 from this class (its own calendar now
+                            nests a 7-column row per week); without this the days stack in one column.
+                        --}}
                         <div
                             role="grid"
                             class="fi-fo-date-time-picker-calendar"
+                            style="grid-template-columns: repeat(7, minmax(1.75rem, 1fr));"
                         >
                             <template
                                 x-for="day in emptyDaysInFocusedMonth"

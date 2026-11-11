@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-11-11
+
+### Fixed
+- **Filament 5.11:** the date picker's days stacked in a single column. Filament 5.11 removed `grid-cols-7` from `.fi-fo-date-time-picker-calendar` (its own calendar now nests one 7-column row per week). The Ethiopic calendar grid now sets its own seven columns, so it lays out correctly on every Filament 5 release.
+
 ## [2.1.0] - 2026-09-22
 
 ### Added
